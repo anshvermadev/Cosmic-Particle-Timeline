@@ -1,6 +1,7 @@
 # ORIGIN — From the Big Bang to the Stars
 ### *13.8 Billion Years in 26,000 Living Particles*
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-cosmic--particle--timeline.vercel.app-00dfa2?style=for-the-badge&logo=vercel)](https://cosmic-particle-timeline.vercel.app/)
 [![Tech](https://img.shields.io/badge/Three.js-WebGL_%7C_GLSL-blue?style=for-the-badge&logo=three.js)](https://threejs.org)
 [![Zero Assets](https://img.shields.io/badge/Assets-100%25_Procedural-success?style=for-the-badge)](#technical-architecture)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0_Build_Steps-8b5cf6?style=for-the-badge)](#quick-start--how-to-run)
