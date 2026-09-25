@@ -112,6 +112,7 @@ ORIGIN was engineered with an ultra-lean, zero-bloat philosophy:
 ```
 origin/
 ├── index.html                   # Complete application (HTML, CSS, Three.js, Shaders, Audio)
+├── favicon.svg                  # Vector cosmic particle brand icon & favicon
 ├── .gitignore                   # Git configuration (clean ignore rules)
 └── README.md                    # Project documentation
 ```
