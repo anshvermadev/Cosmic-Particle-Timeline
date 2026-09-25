@@ -1,0 +1,19 @@
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Editors & IDEs
+.vscode/
+.idea/
+
+# Local Environment & Secrets
+.env*
+*.local
+*.local.json
+
+# Local Documentation & Hackathon Notes
+docs/
+
+# Tooling & Dependencies
+node_modules/
+.rocketride/

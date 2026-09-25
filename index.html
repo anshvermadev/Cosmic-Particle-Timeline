@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>ORIGIN — From the Big Bang to the Stars</title>
+<meta name="description" content="13.8 billion years of cosmos, humanity, one human life and the next 300 years, told in 26,000 interactive particles.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#b9a8ff;--fg:#f3efe6;--muted:rgba(243,239,230,.62)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#040409;color:var(--fg);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+.vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.7) 100%)}
+.ui{opacity:0;transition:opacity 1.4s ease}
+body.started .ui{opacity:1}
+body.hideui .ui{opacity:0!important}
+.brand{position:fixed;top:28px;left:36px;display:flex;gap:14px;align-items:baseline;pointer-events:none}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:.42em;font-size:18px}
+.tag{font-size:10.5px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted)}
+.year{position:fixed;top:22px;right:36px;text-align:right;pointer-events:none}
+#yearNum{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,56px);font-weight:500;font-variant-numeric:tabular-nums;color:var(--accent);text-shadow:0 0 32px var(--accent);transition:color 1s}
+#yearUnit{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.panel{position:fixed;left:36px;top:50%;transform:translateY(-50%);max-width:390px;pointer-events:none}
+.idx{font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.panel h1{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(40px,5.2vw,74px);line-height:.95;margin-bottom:12px;text-shadow:0 0 40px rgba(0,0,0,.6)}
+.sub{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+.panel p{font-size:15px;line-height:1.7;color:var(--muted);margin-bottom:20px;text-shadow:0 1px 12px rgba(0,0,0,.8)}
+#facts{list-style:none;display:flex;flex-direction:column;gap:8px}
+#facts li{font-size:12px;letter-spacing:.04em;padding:7px 12px;border:1px solid rgba(255,255,255,.1);border-left:2px solid var(--accent);background:rgba(8,8,18,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);width:fit-content;border-radius:2px}
+.panel.show>*{animation:rise 1.1s cubic-bezier(.2,.8,.2,1) both}
+.panel.show>*:nth-child(2){animation-delay:.07s}
+.panel.show>*:nth-child(3){animation-delay:.14s}
+.panel.show>*:nth-child(4){animation-delay:.21s}
+.panel.show>*:nth-child(5){animation-delay:.3s}
+@keyframes rise{from{opacity:0;transform:translateY(18px);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+.timeline{position:fixed;left:50%;bottom:52px;transform:translateX(-50%);width:min(900px,84vw)}
+.track{position:absolute;left:4px;right:4px;top:4px;height:1px;background:rgba(255,255,255,.15)}
+.fill{height:100%;width:0;background:var(--accent);box-shadow:0 0 12px var(--accent);transition:width 1.2s cubic-bezier(.2,.8,.2,1),background 1s}
+.dots{position:relative;display:flex;justify-content:space-between}
+.dot{position:relative;width:9px;height:9px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:#08080f;cursor:pointer;transition:transform .3s,background .5s,box-shadow .5s,border-color .5s;padding:0}
+.dot:hover{transform:scale(1.45)}
+.dot.done{background:var(--accent);border-color:var(--accent)}
+.dot.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 5px rgba(255,255,255,.08),0 0 22px var(--accent)}
+.dot span{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;color:var(--muted);opacity:0;transition:opacity .3s;pointer-events:none}
+.dot.active span,.dot:hover span{opacity:1}
+.chap{position:absolute;bottom:18px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);white-space:nowrap;border-left:1px solid rgba(255,255,255,.25);padding-left:6px;transition:color .6s;cursor:pointer}
+.chap span{display:none}
+.chap.on{color:var(--accent);z-index:2}
+.chap.on span,.chap:hover span{display:inline}
+.chap:hover{z-index:3;color:#fff}.controls{position:fixed;right:36px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px}
+.controls button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(8,8,18,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:var(--fg);font-size:15px;cursor:pointer;transition:.3s}
+.controls button:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 18px rgba(255,255,255,.1)}
+.controls button.on{border-color:var(--accent);color:var(--accent)}
+.hint{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.34);white-space:nowrap;pointer-events:none}
+#intro{position:fixed;inset:0;display:grid;place-items:center;text-align:center;background:radial-gradient(ellipse 60% 55% at center,rgba(3,3,8,.82) 0%,rgba(3,3,8,.6) 55%,rgba(3,3,8,.35) 100%);transition:opacity 1.6s ease,visibility 1.6s;z-index:5}
+#intro>div{padding:40px 30px;text-shadow:0 2px 18px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.9)}
+#intro p{color:rgba(243,239,230,.88)!important}
+.chips span{background:rgba(3,3,8,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#begin{background:rgba(3,3,8,.55)!important}
+#intro.hide{opacity:0;visibility:hidden}
+.eyebrow{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:#ffd9a8;margin-bottom:18px;animation:rise 1.6s .2s both}
+#intro h1{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(64px,12vw,150px);letter-spacing:.28em;margin-right:-.28em;line-height:1;text-shadow:0 0 60px rgba(255,200,150,.45);animation:rise 1.8s .4s both}
+#intro p{margin:18px auto 30px;max-width:480px;color:var(--muted);line-height:1.7;font-size:15px;animation:rise 1.8s .6s both;padding:0 20px}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:30px;animation:rise 1.8s .7s both}
+.chips span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;border:1px solid rgba(255,255,255,.18);padding:6px 12px;border-radius:20px;color:rgba(255,255,255,.7)}
+#begin{font:500 12px Inter,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:var(--fg);background:transparent;border:1px solid rgba(255,255,255,.35);padding:16px 34px;border-radius:40px;cursor:pointer;transition:.4s;animation:rise 1.8s .8s both}
+#begin:hover{border-color:#ffd9a8;box-shadow:0 0 30px rgba(255,217,168,.35),inset 0 0 20px rgba(255,217,168,.15);letter-spacing:.36em}
+.small{margin-top:18px;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.1em;animation:rise 1.8s 1s both}
+@media (max-width:760px){
+  .brand{top:18px;left:18px}.tag{display:none}
+  .year{top:14px;right:18px}
+  .panel{top:auto;bottom:112px;transform:none;left:18px;right:18px;max-width:none}
+  .panel h1{font-size:36px;margin-bottom:6px}
+  .sub{margin-bottom:8px}
+  .panel p{font-size:13px;line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  #facts{flex-direction:row;flex-wrap:wrap;gap:6px}#facts li{font-size:10.5px;padding:5px 8px}
+  .controls{top:70px;transform:none;right:14px}
+  .controls button{width:38px;height:38px;font-size:13px}
+  .timeline{bottom:34px;width:calc(100vw - 36px)}
+  .dots,.track,.chap{display:none}
+  .mbar{display:flex!important}.mlabel{display:flex!important}
+  .hint .d{display:none}.hint .m{display:inline!important}
+  .hint{font-size:8.5px;bottom:10px}
+  .panel{bottom:96px}
+}
+.mbar{display:none;gap:5px;align-items:center;height:12px}
+.seg{position:relative;height:3px;border-radius:3px;background:rgba(255,255,255,.13);cursor:pointer;transition:height .4s}
+.seg.on{height:4px;background:rgba(255,255,255,.2)}
+.seg i{position:relative;display:block;height:100%;width:0;border-radius:3px;background:var(--accent);box-shadow:0 0 10px var(--accent);transition:width 1.1s cubic-bezier(.2,.8,.2,1),background 1s}
+.seg.on i::after{content:'';position:absolute;right:-5px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px var(--accent),0 0 16px 4px var(--accent);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 5px var(--accent),0 0 24px 8px var(--accent)}}
+.mlabel{display:none;justify-content:space-between;align-items:baseline;margin-top:10px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+#mch{color:var(--accent);font-weight:500}
+#mnum{font-variant-numeric:tabular-nums}
+.hint .m{display:none}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="vignette"></div>
+
+<header class="brand ui"><span class="logo">ORIGIN</span><span class="tag">From the Big Bang to the Stars</span></header>
+<div class="year ui"><div id="yearNum">13,800,000,000</div><div id="yearUnit">years ago</div></div>
+<section class="panel ui" id="panel">
+  <div class="idx" id="idx"></div>
+  <h1 id="title"></h1>
+  <div class="sub" id="sub"></div>
+  <p id="desc"></p>
+  <ul id="facts"></ul>
+</section>
+<nav class="timeline ui" id="timeline"><div class="track"><div class="fill" id="fill"></div></div><div class="dots" id="dots"></div><div class="mbar" id="mbar"></div><div class="mlabel"><span id="mch"></span><span id="mnum"></span></div></nav>
+<div class="controls ui">
+  <button id="prev" title="Previous (←)">↑</button>
+  <button id="tour" title="Auto tour (Space)">▶</button>
+  <button id="next" title="Next (→)">↓</button>
+  <button id="snd" title="Sound (M)">♪</button>
+</div>
+<div class="hint ui"><span class="d">Scroll / ← → to travel · Drag to orbit · Move to disturb · Click to scatter · Space = tour · H hides UI</span><span class="m">Swipe ↑ to travel · Drag to orbit · Tap to scatter</span></div>
+
+<div id="intro">
+  <div>
+    <div class="eyebrow">13.8 billion years · 39 moments</div>
+    <h1>ORIGIN</h1>
+    <p>From the Big Bang to a single human life, the rise of AI, and 300 years into our future among the stars. Told in 26,000 living particles.</p>
+    <div class="chips"><span>I · Cosmos</span><span>II · Rise of Humanity</span><span>III · A Human Life</span><span>IV · Age of Intelligence</span><span>V · Among the Stars</span></div>
+    <button id="begin">Begin the journey</button>
+    <div class="small">Best with sound on 🎧</div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+/* ================= utilities ================= */
+const isMobile = matchMedia('(max-width: 760px)').matches || /Mobi|Android/i.test(navigator.userAgent);
+const N = isMobile ? 14000 : 26000;
+const TAU = Math.PI * 2;
+const rnd = (a = 0, b = 1) => a + Math.random() * (b - a);
+const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * v); };
+function unitVec() { const z = rnd(-1, 1), a = rnd(0, TAU), r = Math.sqrt(1 - z * z); return [r * Math.cos(a), z, r * Math.sin(a)]; }
+function shape() { return { pos: new Float32Array(N * 3), col: new Float32Array(N * 3), dyn: null }; }
+function set3(arr, i, x, y, z) { arr[i * 3] = x; arr[i * 3 + 1] = y; arr[i * 3 + 2] = z; }
+function mix(a, b, m) { return [a[0] + (b[0] - a[0]) * m, a[1] + (b[1] - a[1]) * m, a[2] + (b[2] - a[2]) * m]; }
+function pnoise(x, y, z) { return Math.sin(x * 5.1 + Math.sin(y * 3.7)) * Math.sin(y * 4.3 + z * 2.9 + 1.3) * Math.sin(z * 6.1 + x * 1.3 + 2.1); }
+function ll2v(la, lo) { la *= Math.PI / 180; lo *= Math.PI / 180; return [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)]; }
+function segDist(px, py, ax, ay, bx, by) { const dx = bx - ax, dy = by - ay; const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))); return Math.hypot(px - ax - dx * t, py - ay - dy * t); }
+const setc = (c, col, k = 1) => { c[0] = col[0] * k; c[1] = col[1] * k; c[2] = col[2] * k; };
+
+/* ================= composable particle parts ================= */
+// every part = { w: share of particles, make(start, count, shape) -> optional dyn(t, pos, col) }
+function compose(parts) {
+  const s = shape(); const tot = parts.reduce((a, p) => a + p.w, 0); let st = 0; const dyns = [];
+  parts.forEach((p, k) => { const n = k === parts.length - 1 ? N - st : Math.floor(N * p.w / tot); const d = p.make(st, n, s); if (d) dyns.push(d); st += n; });
+  if (dyns.length) { const base = s.pos.slice(); s.dyn = (t, o, oc) => { o.set(base); for (const d of dyns) d(t, o, oc); }; }
+  return s;
+}
+// static points: fn(pos, col)
+function stat(w, fn) { return { w, make(st, n, s) { const p = [0, 0, 0], c = [1, 1, 1]; for (let j = 0; j < n; j++) { fn(p, c, j, n); set3(s.pos, st + j, p[0], p[1], p[2]); set3(s.col, st + j, c[0], c[1], c[2]); } return null; } }; }
+// animated points: fn(u 0..1 looping, seedA, seedB, t, out); optional col(u, a, b, out, t)
+function flow(w, o) { return { w, make(st, n, s) {
+  const S0 = new Float32Array(n), S1 = new Float32Array(n), S2 = new Float32Array(n);
+  for (let j = 0; j < n; j++) { S0[j] = Math.random(); S1[j] = Math.random(); S2[j] = Math.random(); if (!o.col) { const c = o.color || [1, 1, 1], b = rnd(o.b0 ?? 0.5, o.b1 ?? 1); set3(s.col, st + j, c[0] * b, c[1] * b, c[2] * b); } }
+  const p = [0, 0, 0], c = [0, 0, 0], sp = o.speed ?? 0.1, vary = o.vary ?? 0.6;
+  const dyn = (t, out, oc) => {
+    for (let j = 0; j < n; j++) {
+      const a = S1[j], b = S2[j], u = ((S0[j] + t * sp * (1 - vary / 2 + vary * a)) % 1 + 1) % 1;
+      o.fn(u, a, b, t, p); const i = (st + j) * 3; out[i] = p[0]; out[i + 1] = p[1]; out[i + 2] = p[2];
+      if (o.col && oc) { o.col(u, a, b, c, t); oc[i] = c[0]; oc[i + 1] = c[1]; oc[i + 2] = c[2]; }
+    }
+  };
+  dyn(0, s.pos, s.col); return dyn; } }; }
+// sphere / planet / cell
+function sphere(w, o) { return { w, make(st, n, s) {
+  const V = new Float32Array(n * 3), RR = new Float32Array(n);
+  for (let j = 0; j < n; j++) {
+    const v = unitVec(); if (o.hemi && v[1] < 0) v[1] = -v[1];
+    V[j * 3] = v[0]; V[j * 3 + 1] = v[1]; V[j * 3 + 2] = v[2];
+    RR[j] = o.r * (o.solid ? Math.cbrt(Math.random()) : rnd(o.in ?? 0.96, o.out ?? 1));
+    const c = o.colorFn ? o.colorFn(v) : o.color, b = rnd(o.b0 ?? 0.6, o.b1 ?? 1); set3(s.col, st + j, c[0] * b, c[1] * b, c[2] * b);
+  }
+  const dyn = (t, out) => {
+    const a = (o.spin || 0) * t, ca = Math.cos(a), sa = Math.sin(a); let cx = o.c[0], cy = o.c[1], cz = o.c[2];
+    if (o.orbit) { const q = o.orbit, an = q.ph + t * q.sp; cx += Math.cos(an) * q.R; cz += Math.sin(an) * q.R; cy += Math.sin(an) * q.R * (q.tilt || 0); }
+    if (o.move) { const m = o.move(t); cx += m[0]; cy += m[1]; cz += m[2]; }
+    const pl = o.pulse ? o.pulse(t) : 1, sq = o.squash ?? 1;
+    for (let j = 0; j < n; j++) { const x = V[j * 3], y = V[j * 3 + 1], z = V[j * 3 + 2], r = RR[j] * pl, i = (st + j) * 3; out[i] = cx + (x * ca + z * sa) * r; out[i + 1] = cy + y * r * sq; out[i + 2] = cz + (-x * sa + z * ca) * r; }
+  };
+  dyn(0, s.pos); return (o.spin || o.orbit || o.move || o.pulse) ? dyn : null; } }; }
+// orbiting disk / ring
+function disk(w, o) { return { w, make(st, n, s) {
+  const R = new Float32Array(n), A = new Float32Array(n), Y = new Float32Array(n), c0 = o.c || [0, 0, 0];
+  for (let j = 0; j < n; j++) { R[j] = o.r0 + (o.r1 - o.r0) * Math.pow(Math.random(), o.pow ?? 1); A[j] = rnd(0, TAU); Y[j] = gauss() * (o.thick ?? 0.02); const c = o.colorFn ? o.colorFn(R[j]) : o.color, b = rnd(o.b0 ?? 0.4, o.b1 ?? 1); set3(s.col, st + j, c[0] * b, c[1] * b, c[2] * b); }
+  const dyn = (t, out) => { for (let j = 0; j < n; j++) { const a = A[j] + t * (o.sp ? o.sp(R[j]) : 0), i = (st + j) * 3, X = Math.cos(a) * R[j], Z = Math.sin(a) * R[j]; out[i] = c0[0] + X; if (o.vertical) { out[i + 1] = c0[1] + Z; out[i + 2] = c0[2] + Y[j]; } else { out[i + 1] = c0[1] + Y[j]; out[i + 2] = c0[2] + Z; } } };
+  dyn(0, s.pos); return o.sp ? dyn : null; } }; }
+// rigid body: init(p,c) in local space; move(t) translation; rotZ/rotX(t) spin
+function rigid(w, o) { return { w, make(st, n, s) {
+  const L = new Float32Array(n * 3), p = [0, 0, 0], c = [1, 1, 1], c0 = o.c || [0, 0, 0];
+  for (let j = 0; j < n; j++) { o.init(p, c, j, n); L[j * 3] = p[0]; L[j * 3 + 1] = p[1]; L[j * 3 + 2] = p[2]; set3(s.col, st + j, c[0], c[1], c[2]); }
+  const dyn = (t, out) => {
+    const m = o.move ? o.move(t) : [0, 0, 0], rz = o.rotZ ? o.rotZ(t) : 0, rx = o.rotX ? o.rotX(t) : 0, ry = o.rotY ? o.rotY(t) : 0;
+    const cz = Math.cos(rz), sz = Math.sin(rz), cx = Math.cos(rx), sx = Math.sin(rx), cyy = Math.cos(ry), syy = Math.sin(ry);
+    for (let j = 0; j < n; j++) {
+      let x = L[j * 3], y = L[j * 3 + 1], z = L[j * 3 + 2];
+      if (rz) { const X = x * cz - y * sz; y = x * sz + y * cz; x = X; }
+      if (rx) { const Y = y * cx - z * sx; z = y * sx + z * cx; y = Y; }
+      if (ry) { const X = x * cyy + z * syy; z = -x * syy + z * cyy; x = X; }
+      const i = (st + j) * 3; out[i] = c0[0] + m[0] + x; out[i + 1] = c0[1] + m[1] + y; out[i + 2] = c0[2] + m[2] + z;
+    }
+  };
+  dyn(0, s.pos); return (o.move || o.rotZ || o.rotX || o.rotY) ? dyn : null; } }; }
+// ground plane (optionally scrolling to simulate walking)
+function ground(w, o = {}) { return { w, make(st, n, s) {
+  const G = o.G ?? -1.25, x0 = o.x0 ?? -5.5, x1 = o.x1 ?? 5.5, W = x1 - x0, c = o.color || [0.6, 0.42, 0.26], GX = new Float32Array(n);
+  for (let j = 0; j < n; j++) { GX[j] = rnd(x0, x1); set3(s.pos, st + j, GX[j], G + gauss() * 0.015, rnd(o.z0 ?? -1.8, o.z1 ?? 1.2)); const b = rnd(0.2, 0.5) * (o.bright ?? 1); set3(s.col, st + j, c[0] * b, c[1] * b, c[2] * b); }
+  if (!o.speed) return null;
+  return (t, out) => { for (let j = 0; j < n; j++) { let x = GX[j] - t * o.speed; x = ((x - x0) % W + W) % W + x0; out[(st + j) * 3] = x; } };
+} }; }
+// campfire
+function fire(w, o) { return { w, make(st, n, s) {
+  const G = o.G ?? -1.25, fx = o.x, FU = new Float32Array(n), FA = new Float32Array(n), FR = new Float32Array(n), FT = new Uint8Array(n);
+  for (let j = 0; j < n; j++) { FU[j] = Math.random(); FA[j] = rnd(0, TAU); FR[j] = Math.sqrt(Math.random()); const q = Math.random(); FT[j] = q < 0.08 ? 2 : q < 0.2 ? 1 : 0; if (FT[j] === 2) { const b = rnd(0.25, 0.45); set3(s.col, st + j, 0.5 * b, 0.42 * b, 0.38 * b); } }
+  const dyn = (t, out, oc) => {
+    for (let j = 0; j < n; j++) {
+      const i = st + j;
+      if (FT[j] === 2) { set3(out, i, fx + Math.cos(FA[j]) * 0.55 * (0.9 + FR[j] * 0.2), G + 0.04 + FR[j] * 0.06, Math.sin(FA[j]) * 0.35); continue; }
+      if (FT[j] === 1) { const u = (FU[j] + t * 0.22) % 1; set3(out, i, fx + Math.sin(FA[j] * 3 + t * 1.5 + u * 4) * 0.5 * u + (FR[j] - 0.5) * 0.3, G + 0.2 + u * 3.2, Math.cos(FA[j] * 2 + t) * 0.3 * u); if (oc) { const k = (1 - u) * 1.4; set3(oc, i, k, 0.55 * k, 0.15 * k); } continue; }
+      const u = (FU[j] + t * (0.9 + FR[j] * 0.5)) % 1, rr = 0.42 * FR[j] * Math.pow(1 - u, 1.3) * (1 + 0.25 * Math.sin(t * 11 + FA[j] * 7));
+      set3(out, i, fx + Math.cos(FA[j] + u * 2.5) * rr + Math.sin(t * 4 + FU[j] * 20) * 0.05 * u, G + 0.05 + u * 1.35, Math.sin(FA[j] + u * 2.5) * rr * 0.8);
+      if (oc) { const c = u < 0.5 ? mix([1, 0.92, 0.6], [1, 0.45, 0.08], u / 0.5) : mix([1, 0.45, 0.08], [0.45, 0.05, 0.02], (u - 0.5) / 0.5), k = 1.25 * (1 - u * 0.4); set3(oc, i, c[0] * k, c[1] * k, c[2] * k); }
+    }
+  };
+  dyn(0, s.pos, s.col); return dyn; } }; }
+
+/* ---------- skeletal figures ---------- */
+// procedural humanoid. p: 0 = early ape-like, 1 = Homo sapiens. pr: {head, limb, torso, bulk, amp, lean}
+function figSegs(p, ph, walk, pr = {}) {
+  const H = pr.head ?? 1, Lm = pr.limb ?? 1, Tm = pr.torso ?? 1, Bk = pr.bulk ?? 1, Am = pr.amp ?? 1;
+  const segs = [], S = (a, b, ra, rb) => segs.push([a, b, ra * Bk, rb * Bk]);
+  const lean = 0.08 + (1 - p) * 0.85 + (pr.lean ?? 0), legL = (0.9 + 0.2 * p) * Lm, bend = 0.12 + (1 - p) * 0.45;
+  const bob = walk ? Math.abs(Math.sin(ph)) * 0.03 : 0;
+  const hip = [0, legL * Math.cos(bend * 0.5) + bob, 0], torso = (0.62 + 0.08 * p) * Tm;
+  const neck = [hip[0] + Math.sin(lean) * torso, hip[1] + Math.cos(lean) * torso, 0];
+  const chest = [hip[0] + Math.sin(lean) * torso * 0.62, hip[1] + Math.cos(lean) * torso * 0.62, 0];
+  const hr = (0.1 + 0.055 * p) * H, hd = lean * 0.55;
+  const head = [neck[0] + Math.sin(hd) * (0.08 + hr) + (1 - p) * 0.05, neck[1] + Math.cos(hd) * (0.08 + hr), 0];
+  const jaw = [head[0] + hr * 0.6 + (1 - p) * 0.1, head[1] - hr * 0.45, 0];
+  S(hip, chest, 0.15, 0.19); S(chest, neck, 0.19, 0.1); S(neck, head, 0.055, 0.06); segs.push([head, head, hr, hr]); S(head, jaw, 0.05 + (1 - p) * 0.04, 0.035 + (1 - p) * 0.02);
+  const amp = walk ? (0.25 + 0.2 * p) * Am : 0;
+  for (const side of [-1, 1]) {
+    const ph2 = ph + (side > 0 ? 0 : Math.PI), sw = Math.sin(ph2) * amp, lift = walk ? Math.max(0, Math.cos(ph2)) * amp : 0;
+    const hs = [hip[0], hip[1], side * 0.1], th = legL * 0.5, a1 = sw + bend * 0.5;
+    const knee = [hs[0] + Math.sin(a1) * th, hs[1] - Math.cos(a1) * th, side * 0.1], a2 = a1 - bend - lift;
+    const foot = [knee[0] + Math.sin(a2) * th, knee[1] - Math.cos(a2) * th, side * 0.1], toe = [foot[0] + 0.15, foot[1] - 0.02, side * 0.1];
+    S(hs, knee, 0.085, 0.065); S(knee, foot, 0.06, 0.045); S(foot, toe, 0.045, 0.035);
+    const armL = 0.6 * (1.4 - 0.4 * p) * Lm, sh = [neck[0] - Math.sin(lean) * 0.08, neck[1] - Math.cos(lean) * 0.08, side * 0.2];
+    const asw = -Math.sin(ph2) * amp * 0.9 + (1 - p) * 0.55;
+    const el = [sh[0] + Math.sin(asw) * armL * 0.5, sh[1] - Math.cos(asw) * armL * 0.5, side * 0.22];
+    const a3 = asw + 0.25 + (walk ? Math.max(0, -Math.sin(ph2)) * 0.3 : 0.3);
+    const hand = [el[0] + Math.sin(a3) * armL * 0.5, el[1] - Math.cos(a3) * armL * 0.5, side * 0.22];
+    S(sh, el, 0.06, 0.05); S(el, hand, 0.05, 0.04); S(hand, hand, 0.05, 0.05);
+  }
+  return segs;
+}
+// figure part: particles live on the skeleton's capsules and follow it every frame
+function figure(w, f) { return { w, make(st, n, s) {
+  const rig = f.rig || (ph => figSegs(f.p ?? 1, ph, !!f.walk, f.prop));
+  const G = f.G ?? -1.25, ox = f.ox ?? 0.3, sc = f.s ?? 1, seg0 = rig(0); let acc = 0;
+  const cum = seg0.map(([a, b, ra, rb]) => { const r = (ra + rb) / 2; acc += r * (Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) + 2 * r); return acc; });
+  const SI = new Uint8Array(n), T = new Float32Array(n), OFF = new Float32Array(n * 3), TH = new Float32Array(n), SD = new Float32Array(n);
+  for (let j = 0; j < n; j++) {
+    const y = Math.random() * acc; let k = 0; while (k < cum.length - 1 && cum[k] < y) k++;
+    SI[j] = k; T[j] = Math.random(); const u = unitVec(), m = 0.78 + 0.22 * Math.random();
+    OFF[j * 3] = u[0] * m; OFF[j * 3 + 1] = u[1] * m; OFF[j * 3 + 2] = u[2] * m;
+    const c = (f.segColor && f.segColor[k]) || f.color || [0.8, 0.85, 1], b = rnd(0.6, 1.05) * (k === 3 && f.headGlow ? 1.35 : 1);
+    set3(s.col, st + j, c[0] * b, c[1] * b, c[2] * b);
+    const A = seg0[k][0], B = seg0[k][1], ly = A[1] + (B[1] - A[1]) * T[j];
+    TH[j] = Math.min(1, Math.max(0, (1 - ly / 2.1) * 0.6 + Math.random() * 0.4)); SD[j] = Math.random() * TAU;
+  }
+  const dyn = (t, o, oc) => {
+    const segs = rig(t * (f.speed ?? 3.2) + (f.off ?? 0)), pth = f.path ? f.path(t) : null;
+    const px = f.x + (pth ? pth[0] : 0), py = G + (pth ? pth[1] : 0), pz = f.z ?? 0, P = f.dissolve ? (t * 0.075) % 1.45 : 0;
+    for (let j = 0; j < n; j++) {
+      const sg = segs[SI[j]], a = sg[0], b = sg[1], tt = T[j], r = sg[2] + (sg[3] - sg[2]) * tt, i = (st + j) * 3;
+      let x = px + (a[0] + (b[0] - a[0]) * tt + OFF[j * 3] * r - ox) * sc;
+      let y = py + (a[1] + (b[1] - a[1]) * tt + OFF[j * 3 + 1] * r) * sc;
+      let z = pz + (a[2] + (b[2] - a[2]) * tt + OFF[j * 3 + 2] * r) * sc;
+      if (f.dissolve) {
+        const k = Math.max(0, (P - TH[j]) * 2.2);
+        if (k > 0) { y += k * k * 1.4 + k * 0.4; x += Math.sin(SD[j] * 3 + k * 2.5) * k * 0.5; z += Math.cos(SD[j] * 2 + k * 2.5) * k * 0.5; }
+        if (oc) { const m = Math.min(1, k), fade = k > 1.6 ? Math.max(0, 1 - (k - 1.6)) : 1, c0 = s.col; oc[i] = (c0[i] + (0.55 - c0[i]) * m) * fade; oc[i + 1] = (c0[i + 1] + (0.8 - c0[i + 1]) * m) * fade; oc[i + 2] = (c0[i + 2] + (1.2 - c0[i + 2]) * m) * fade; }
+      }
+      o[i] = x; o[i + 1] = y; o[i + 2] = z;
+    }
+  };
+  dyn(0, s.pos, null); return dyn; } }; }
+function buildFigures(figs, opt = {}) {
+  const fw = 1 - (opt.ground ? 0.12 : 0) - (opt.fire ? 0.3 : 0), ss = figs.reduce((a, f) => a + f.s * f.s, 0);
+  const parts = figs.map(f => figure(fw * f.s * f.s / ss, f));
+  if (opt.ground) parts.push(ground(0.12, opt.ground));
+  if (opt.fire) parts.push(fire(0.3, opt.fire));
+  return compose(parts);
+}
+// special rigs
+function rigFetus(ph) {
+  const beat = Math.pow(Math.max(0, Math.sin(ph)), 10), sc = 1 + 0.025 * beat, fl = Math.sin(ph * 0.05) * 0.04;
+  const J = (x, y, z = 0) => [x * sc, (y + fl) * sc, z * sc];
+  const S = [J(0.12, 0.5), J(-0.27, 0.43), J(-0.45, 0.05), J(-0.27, -0.33), J(-0.02, -0.44)], head = J(0.34, 0.62);
+  const segs = [[head, head, 0.34, 0.34], [S[0], S[1], 0.18, 0.23], [S[1], S[2], 0.23, 0.25], [S[2], S[3], 0.25, 0.22], [S[3], S[4], 0.22, 0.18]];
+  for (const k of [-1, 1]) {
+    const hip = J(-0.05, -0.38, k * 0.13), knee = J(0.4, -0.08, k * 0.15), foot = J(0.14, -0.42, k * 0.12);
+    segs.push([hip, knee, 0.1, 0.08], [knee, foot, 0.07, 0.05], [foot, J(0.24, -0.46, k * 0.12), 0.05, 0.04]);
+    const sh = J(0, 0.3, k * 0.17), el = J(0.22, 0, k * 0.2), hand = J(0.36, 0.3, k * 0.1);
+    segs.push([sh, el, 0.06, 0.05], [el, hand, 0.05, 0.04], [hand, hand, 0.05, 0.05]);
+  }
+  const hp = J(0, 0.12, 0.05), hr = 0.07 + 0.05 * beat; segs.push([hp, hp, hr, hr]); // 17 heart
+  const a = J(0.1, -0.2), b = J(0.95, -1.0);
+  const P = u => [a[0] + (b[0] - a[0]) * u + Math.sin(u * 9 + ph * 0.1) * 0.09, a[1] + (b[1] - a[1]) * u + Math.cos(u * 7) * 0.07, 0.12 * Math.sin(u * 5)];
+  for (let q = 0; q < 5; q++) segs.push([P(q / 5), P((q + 1) / 5), 0.035, 0.035]); // 18-22 cord
+  segs.push([b, b, 0.3, 0.3]); // 23 placenta
+  return segs;
+}
+function rigBaby(ph) {
+  const hip = [0, 0.36, 0], sh = [0.55, 0.4, 0], neck = [0.66, 0.46, 0], head = [0.82, 0.58, 0];
+  const segs = [[hip, sh, 0.17, 0.18], [sh, neck, 0.1, 0.08], [neck, head, 0.06, 0.06], [head, head, 0.23, 0.23], [head, [0.97, 0.52, 0], 0.05, 0.04]];
+  for (const k of [-1, 1]) {
+    const q = Math.sin(ph + (k > 0 ? 0 : Math.PI));
+    const knee = [0.02 + q * 0.08, 0.06, k * 0.11], foot = [-0.3 + q * 0.05, 0.08 + Math.max(0, -q) * 0.04, k * 0.11];
+    segs.push([[hip[0], hip[1], k * 0.1], knee, 0.09, 0.075], [knee, foot, 0.065, 0.05], [foot, [foot[0] - 0.05, foot[1] + 0.03, foot[2]], 0.04, 0.035]);
+    const hand = [0.6 - q * 0.1, 0.04 + Math.max(0, q) * 0.06, k * 0.15], el = [(sh[0] + hand[0]) / 2 + 0.03, 0.22, k * 0.16];
+    segs.push([[sh[0], sh[1], k * 0.13], el, 0.06, 0.05], [el, hand, 0.05, 0.045], [hand, hand, 0.045, 0.045]);
+  }
+  return segs;
+}
+function rigSit(ph) {
+  const w = Math.sin(ph) * 0.03, hip = [0, 0.62, 0], chest = [0.1, 1.05, 0], neck = [0.2, 1.35, 0], head = [0.33, 1.5 + w * 0.5, 0];
+  const segs = [[hip, chest, 0.16, 0.19], [chest, neck, 0.19, 0.1], [neck, head, 0.055, 0.06], [head, head, 0.155, 0.155], [head, [0.45, 1.44, 0], 0.04, 0.03]];
+  for (const k of [-1, 1]) {
+    const knee = [0.5, 0.64, k * 0.12], foot = [0.55, 0.02, k * 0.12];
+    segs.push([[0, 0.62, k * 0.1], knee, 0.085, 0.065], [knee, foot, 0.06, 0.045], [foot, [0.7, 0, k * 0.12], 0.045, 0.035]);
+    const sh = [0.15, 1.28, k * 0.2], el = [0.35, 0.98, k * 0.24], hand = [0.68 + (k > 0 ? w * 2 : 0), 1.02, k * 0.12];
+    segs.push([sh, el, 0.06, 0.05], [el, hand, 0.05, 0.04], [hand, hand, 0.05, 0.05]);
+  }
+  return segs;
+}
+const rigElder = ph => { const sg = figSegs(1, ph, true, { lean: 0.32, amp: 0.5 }); const h = sg[16][0]; sg.push([h, [h[0] + 0.06, 0, h[2]], 0.025, 0.025]); return sg; };
+const rigAstro = ph => { const sg = figSegs(1, ph, true, { head: 1.5, bulk: 1.4, amp: 0.6 }); const c = sg[0][1]; sg.push([[c[0] - 0.24, c[1] - 0.15, 0], [c[0] - 0.24, c[1] + 0.2, 0], 0.14, 0.14]); return sg; };
+const CHILD = { head: 1.4, limb: 0.72, torso: 0.75, amp: 1.4 };
+
+/* ---------- text → particles ---------- */
+const textCache = {};
+function sampleText(str) {
+  if (textCache[str]) return textCache[str];
+  const pts = [];
+  if (typeof document !== 'undefined') {
+    const cv = document.createElement('canvas'); cv.width = 320; cv.height = 120; const g = cv.getContext('2d');
+    g.fillStyle = '#fff'; g.font = '600 84px "Cormorant Garamond", Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(str, 160, 62);
+    const d = g.getImageData(0, 0, 320, 120).data;
+    for (let y = 0; y < 120; y += 2) for (let x = 0; x < 320; x += 2) if (d[(y * 320 + x) * 4 + 3] > 128) pts.push([(x - 160) / 100, (60 - y) / 100]);
+  }
+  if (!pts.length) for (let k = 0; k < 200; k++) pts.push([rnd(-0.5, 0.5), rnd(-0.3, 0.3)]);
+  return (textCache[str] = pts);
+}
+function glyphs(w, o) { return { w, make(st, n, s) {
+  const L = o.words.map(sampleText), K = L.length, GI = new Uint8Array(n), PX = new Float32Array(n), PY = new Float32Array(n);
+  for (let j = 0; j < n; j++) { const g = j % K, pt = L[g][Math.floor(Math.random() * L[g].length)]; GI[j] = g; PX[j] = pt[0] + gauss() * 0.008; PY[j] = pt[1] + gauss() * 0.008; const c = o.colors[g % o.colors.length], b = rnd(0.7, 1.15); set3(s.col, st + j, c[0] * b, c[1] * b, c[2] * b); }
+  const dyn = (t, out) => { for (let j = 0; j < n; j++) { const g = GI[j], an = g / K * TAU + t * o.sp; set3(out, st + j, o.c[0] + Math.cos(an) * o.R + PX[j] * o.size, o.c[1] + Math.sin(an * 2 + g) * 0.18 + PY[j] * o.size, o.c[2] + Math.sin(an) * o.R * 0.55); } };
+  dyn(0, s.pos); return dyn; } }; }
+
+/* ================= SHAPES: COSMOS ================= */
+function buildBigBang() {
+  return compose([
+    { w: 0.85, make(st, n, s) {
+      const D = new Float32Array(n * 3), U = new Float32Array(n), V = new Float32Array(n);
+      for (let j = 0; j < n; j++) { const v = unitVec(); D[j * 3] = v[0]; D[j * 3 + 1] = v[1]; D[j * 3 + 2] = v[2]; U[j] = Math.random(); V[j] = rnd(0.7, 1.3); }
+      const dyn = (t, out, oc) => {
+        for (let j = 0; j < n; j++) {
+          const u = (U[j] + t * 0.1 * V[j]) % 1, r = Math.pow(u, 0.55) * 6.5, i = st + j, sw = Math.sin(j * 0.37 + t) * 0.12 * u;
+          set3(out, i, D[j * 3] * r + sw, D[j * 3 + 1] * r, D[j * 3 + 2] * r - sw);
+          if (oc) { const c = u < 0.12 ? mix([1, 1, 1], [1, 0.85, 0.5], u / 0.12) : u < 0.45 ? mix([1, 0.85, 0.5], [1, 0.35, 0.5], (u - 0.12) / 0.33) : mix([1, 0.35, 0.5], [0.35, 0.3, 0.9], (u - 0.45) / 0.55), k = 1.4 * (1 - u * 0.75); set3(oc, i, c[0] * k, c[1] * k, c[2] * k); }
+        }
+      };
+      dyn(0, s.pos, s.col); return dyn;
+    } },
+    sphere(0.15, { c: [0, 0, 0], r: 0.35, solid: true, color: [1, 0.95, 0.85], b0: 1, b1: 1.4, pulse: t => 1 + 0.15 * Math.sin(t * 6) }),
+  ]);
+}
+function buildGalaxy() {
+  const s = shape(); const R = new Float32Array(N), A = new Float32Array(N), Y = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    let r, a, y;
+    if (i < N * 0.13) { r = Math.abs(gauss()) * 0.45; a = rnd(0, TAU); y = gauss() * 0.16; }
+    else { const arm = i % 3; r = 0.3 + Math.pow(Math.random(), 1.3) * 4.3; a = arm * TAU / 3 + r * 1.1 + gauss() * 0.3; y = gauss() * 0.07 * (1.6 - r / 4.6); }
+    R[i] = r; A[i] = a; Y[i] = y;
+    const m = Math.min(1, r / 4), b = rnd(0.5, 1.05), c = Math.random() < 0.07 ? [0.95, 0.4, 0.8] : mix([1, 0.82, 0.55], [0.45, 0.55, 1], m);
+    set3(s.col, i, c[0] * b, c[1] * b, c[2] * b);
+  }
+  s.dyn = (t, o) => { for (let i = 0; i < N; i++) { const r = R[i], a = A[i] - t * 0.35 / (0.6 + r * 0.6); o[i * 3] = Math.cos(a) * r; o[i * 3 + 1] = Y[i]; o[i * 3 + 2] = Math.sin(a) * r; } };
+  s.dyn(0, s.pos);
+  return s;
+}
+function buildSolar() {
+  const pl = [[1.0, 0.05, [0.75, 0.65, 0.55]], [1.4, 0.08, [1, 0.8, 0.5]], [1.9, 0.09, [0.3, 0.6, 1]], [2.4, 0.065, [1, 0.4, 0.2]], [3.2, 0.24, [0.95, 0.75, 0.5]], [4.0, 0.2, [0.95, 0.85, 0.6]], [4.6, 0.13, [0.5, 0.85, 0.95]], [5.1, 0.12, [0.35, 0.5, 1]]];
+  return compose([
+    sphere(0.13, { c: [0, 0, 0], r: 0.55, solid: true, color: [1, 0.72, 0.32], b0: 0.9, b1: 1.4, pulse: t => 1 + 0.03 * Math.sin(t * 3) }),
+    disk(0.05, { c: [0, 0, 0], r0: 0.5, r1: 1.2, pow: 2, thick: 0.001, vertical: true, color: [1, 0.6, 0.25], b0: 0.05, b1: 0.25 }),
+    disk(0.55, { r0: 0.8, r1: 5.4, pow: 0.9, thick: 0.05, colorFn: r => mix([1, 0.7, 0.4], [0.45, 0.45, 0.85], Math.min(1, r / 5)), b0: 0.15, b1: 0.5, sp: r => 0.9 / Math.pow(r, 1.5) }),
+    ...pl.map(([R, r, c]) => sphere(0.01 + r * 0.12, { c: [0, 0, 0], r, color: c, b0: 0.8, b1: 1.25, spin: 1, orbit: { R, sp: 0.9 / Math.pow(R, 1.5), ph: rnd(0, TAU) } })),
+  ]);
+}
+function buildFirstLife() {
+  const cells = [[-2.4, 0.7, -0.6, 0.6], [2.4, -0.1, -0.2, 0.5], [1.1, 1.5, -1.2, 0.38], [-1.2, -1.1, 0.4, 0.42]], parts = [];
+  cells.forEach(([x, y, z, r], k) => {
+    const mv = t => [Math.sin(t * 0.3 + k * 2) * 0.2, Math.cos(t * 0.25 + k) * 0.15, 0];
+    parts.push(sphere(0.09 * r + 0.02, { c: [x, y, z], r, color: [0.3, 0.95, 0.8], b0: 0.5, b1: 1, move: mv, pulse: t => 1 + 0.04 * Math.sin(t * 1.5 + k) }));
+    parts.push(sphere(0.02, { c: [x, y, z], r: r * 0.32, solid: true, color: [0.7, 1, 0.45], b0: 0.6, b1: 1.1, move: mv }));
+  });
+  const sep = t => 0.32 + 0.3 * (0.5 + 0.5 * Math.sin(t * 0.6));
+  [-1, 1].forEach(sd => {
+    parts.push(sphere(0.1, { c: [0, 0.1, 0], r: 0.62, color: [0.4, 1, 0.85], b0: 0.5, b1: 1, move: t => [sd * sep(t), 0, 0], pulse: t => 1 + 0.03 * Math.sin(t * 2) }));
+    parts.push(sphere(0.025, { c: [0, 0.1, 0], r: 0.2, solid: true, color: [0.8, 1, 0.5], b0: 0.7, b1: 1.2, move: t => [sd * sep(t) * 1.3, 0, 0] }));
+  });
+  parts.push(flow(0.2, { speed: 0.12, fn: (u, a, b, t, p) => { const sp = 0.1 + u * 1.3; p[0] = 0.6 + (a - 0.5) * sp + Math.sin(u * 6 + t) * 0.15; p[1] = -2.3 + u * 4.8; p[2] = -1.2 + (b - 0.5) * sp; }, col: (u, a, b, c) => setc(c, mix([1, 0.55, 0.2], [0.2, 0.7, 0.8], Math.min(1, u * 1.5)), (1 - u) * 0.9) }));
+  parts.push(stat(0.05, (p, c) => { const h = Math.random(), r = 0.35 * (1 - h) + 0.08, q = rnd(0, TAU); p[0] = 0.6 + Math.cos(q) * r; p[1] = -3 + h * 0.8; p[2] = -1.2 + Math.sin(q) * r; setc(c, [0.6, 0.35, 0.25], rnd(0.2, 0.45)); }));
+  parts.push(stat(0.12, (p, c) => { p[0] = rnd(-5, 5); p[1] = rnd(-3, 3); p[2] = rnd(-3, 1); setc(c, [0.2, 0.7, 0.8], rnd(0.05, 0.25)); }));
+  return compose(parts);
+}
+
+/* ================= SHAPES: HUMANITY ================= */
+const CONT = [[5,20,22,1],[-15,25,15,1],[15,5,14,.8],[25,30,10,.7],[50,15,12,.9],[57,40,16,.8],[50,90,25,1],[62,120,20,.9],[30,105,15,.9],[22,78,10,1],[35,55,12,.8],[25,45,8,.7],[0,112,8,.7],[-5,140,6,.6],[-25,134,12,1],[45,-100,20,1],[60,-110,18,.9],[70,-45,10,.85],[20,-100,8,.7],[10,-80,5,.5],[-10,-60,15,1],[-30,-65,10,.9],[-40,-68,6,.8],[-85,0,14,1],[-80,100,14,1],[-80,-100,14,1],[65,-150,10,.7],[36,138,5,.6],[64,20,8,.7],[54,-2,4,.6]].map(([la, lo, sg, w]) => [ll2v(la, lo), sg, w]);
+function landVal(v) {
+  let s = 0;
+  for (const [c, sg, w] of CONT) { const d = Math.acos(Math.min(1, Math.max(-1, v[0] * c[0] + v[1] * c[1] + v[2] * c[2]))) * 180 / Math.PI; s += w * Math.exp(-(d * d) / (sg * sg)); }
+  return s + pnoise(v[0] * 2, v[1] * 2, v[2] * 2) * 0.25 + pnoise(v[0] * 6, v[1] * 6, v[2] * 6) * 0.12;
+}
+function landColor(v) {
+  const lat = Math.abs(v[1]), g = pnoise(v[0] * 7, v[1] * 7, v[2] * 7) * 0.5 + 0.5;
+  if (lat > 0.88) return [0.85, 0.9, 1];
+  return mix([0.3, 0.72, 0.36], [0.92, 0.64, 0.32], Math.min(1, ((lat > 0.22 && lat < 0.5) ? 0.7 : 0.2) + g * 0.4));
+}
+const earthColor = v => landVal(v) > 0.5 ? landColor(v) : [0.08, 0.28, 0.75];
+function slerp(A, B, u, out) {
+  const d = Math.min(1, A[0] * B[0] + A[1] * B[1] + A[2] * B[2]), om = Math.acos(d), so = Math.sin(om) || 1e-6, a = Math.sin((1 - u) * om) / so, b = Math.sin(u * om) / so;
+  out[0] = A[0] * a + B[0] * b; out[1] = A[1] * a + B[1] * b; out[2] = A[2] * a + B[2] * b;
+}
+const MIGRATION = [[[9,39],[30,32]],[[30,32],[47,12]],[[30,32],[40,65]],[[40,65],[22,78]],[[22,78],[12,102]],[[12,102],[-3,118]],[[-3,118],[-25,134]],[[12,102],[35,115]],[[35,115],[62,150]],[[62,150],[64,-165]],[[64,-165],[50,-110]],[[50,-110],[20,-98]],[[20,-98],[-12,-62]],[[-12,-62],[-40,-68]],[[47,12],[55,35]],[[40,65],[55,90]]];
+const MUMBAI = [19, 73];
+const FLIGHTS = [[48.8, 2.3], [40.7, -74], [35.7, 139.7], [-33.9, 151], [-33.9, 18.4], [-22.9, -43], [25.2, 55.3], [-8.4, 115.2], [64, -22], [51.5, -0.1], [1.35, 103.8], [30, 31]].map(c => [MUMBAI, c]);
+function buildGlobe(opt = {}) {
+  const s = shape(), R0 = 1.7, base = new Float32Array(N * 3), routes = (opt.arcs || []).map(([a, b]) => [ll2v(...a), ll2v(...b)]);
+  const nArc = routes.length ? Math.floor(N * 0.32) : 0, nAtm = Math.floor(N * 0.07), nSurf = N - nArc - nAtm, hl = opt.highlight ? ll2v(...opt.highlight) : null;
+  let i = 0;
+  for (; i < nSurf; i++) {
+    const wantLand = Math.random() < 0.55; let v, land;
+    for (let k = 0; k < 40; k++) { v = unitVec(); land = landVal(v) > 0.5; if (land === wantLand) break; }
+    const r = R0 * (land ? 1.006 : 1); set3(base, i, v[0] * r, v[1] * r, v[2] * r);
+    let c;
+    if (land && opt.night) { c = Math.random() < 0.14 ? [1, 0.8, 0.45].map(x => x * rnd(0.9, 1.4)) : [0.3, 0.28, 0.55].map(x => x * rnd(0.3, 0.7)); }
+    else if (land) { const b = rnd(0.6, 1); c = landColor(v).map(x => x * b); if (hl && v[0] * hl[0] + v[1] * hl[1] + v[2] * hl[2] > (opt.hlSize ?? 0.8)) { const b2 = rnd(0.9, 1.4); c = [b2, 0.72 * b2, 0.3 * b2]; } }
+    else { const b = rnd(0.35, 0.75) * (opt.night ? 0.4 : 1); c = [0.08 * b, 0.28 * b, 0.75 * b]; }
+    set3(s.col, i, c[0], c[1], c[2]);
+  }
+  for (; i < nSurf + nAtm; i++) { const v = unitVec(), r = R0 * rnd(1.03, 1.15); set3(base, i, v[0] * r, v[1] * r, v[2] * r); const b = rnd(0.15, 0.4); set3(s.col, i, 0.35 * b, 0.65 * b, b); }
+  const RI = new Uint8Array(N), U0 = new Float32Array(N), SP = new Float32Array(N), ac = opt.arcColor || [1, 0.72, 0.3];
+  for (; i < N; i++) { RI[i] = Math.floor(Math.random() * routes.length); U0[i] = Math.random(); SP[i] = gauss() * 0.012; const b = rnd(0.7, 1.25) * (Math.random() < 0.04 ? 1.8 : 1); set3(s.col, i, ac[0] * b, ac[1] * b, ac[2] * b); }
+  const tmp = [0, 0, 0], lift = opt.lift ?? 0.16, spd = opt.speed ?? 0.09;
+  s.dyn = (t, o) => {
+    const ang = opt.spin ? opt.spin(t) : -0.35 + Math.sin(t * 0.15) * 0.9, ca = Math.cos(ang), sa = Math.sin(ang);
+    for (let i = 0; i < nSurf + nAtm; i++) { const x = base[i * 3], y = base[i * 3 + 1], z = base[i * 3 + 2]; o[i * 3] = x * ca + z * sa; o[i * 3 + 1] = y; o[i * 3 + 2] = -x * sa + z * ca; }
+    for (let i = nSurf + nAtm; i < N; i++) {
+      const r = routes[RI[i]], u = (U0[i] + t * spd) % 1; slerp(r[0], r[1], u, tmp);
+      const h = R0 * (1.01 + lift * Math.sin(Math.PI * u)) + SP[i], x = tmp[0] * h + SP[i], y = tmp[1] * h, z = tmp[2] * h;
+      o[i * 3] = x * ca + z * sa; o[i * 3 + 1] = y; o[i * 3 + 2] = -x * sa + z * ca;
+    }
+  };
+  s.dyn(0, s.pos);
+  return s;
+}
+function buildCave() {
+  const s = shape();
+  const FINGERS = [[-0.38, 0.15, -0.14, 0.85, 0.12], [-0.13, 0.22, -0.04, 1.0, 0.125], [0.12, 0.2, 0.04, 0.95, 0.12], [0.36, 0.12, 0.13, 0.72, 0.11], [0.42, -0.45, 1.0, 0.7, 0.14]];
+  const hands = [{ x: -0.9, y: 0.25, s: 1.2, rot: 0.18 }, { x: 1.8, y: 0.7, s: 0.78, rot: -0.3 }];
+  function inLocal(x, y, pad) {
+    if ((x / (0.56 + pad)) ** 2 + ((y + 0.3) / (0.62 + pad)) ** 2 < 1) return true;
+    if (Math.abs(x) < 0.4 + pad && y < -0.6 && y > -1.9) return true;
+    for (const [bx, by, a, l, r] of FINGERS) if (segDist(x, y, bx, by, bx + Math.sin(a) * l, by + Math.cos(a) * l) < r + pad) return true;
+    return false;
+  }
+  function inHands(x, y, pad) { for (const h of hands) { const dx = (x - h.x) / h.s, dy = (y - h.y) / h.s, c = Math.cos(h.rot), sn = Math.sin(h.rot); if (inLocal(dx * c + dy * sn, -dx * sn + dy * c, pad / h.s)) return true; } return false; }
+  const nWall = Math.floor(N * 0.3), nEdge = Math.floor(N * 0.2), nDots = Math.floor(N * 0.04);
+  for (let i = 0; i < N; i++) {
+    let x, y, z, c;
+    if (i < nWall) { x = rnd(-5, 5); y = rnd(-3.2, 3.2); z = -0.15 + pnoise(x * 0.8, y * 0.8, 1) * 0.12; const b = rnd(0.12, 0.32); c = [0.8 * b, 0.55 * b, 0.4 * b]; }
+    else if (i < nWall + nDots) { const k = Math.floor(Math.random() * 7), a = rnd(0, TAU), r = Math.sqrt(Math.random()) * 0.11; x = 0.5 + k * 0.5 + Math.cos(a) * r; y = -2.1 + Math.sin(k * 1.3) * 0.12 + Math.sin(a) * r; z = gauss() * 0.02; const b = rnd(0.6, 1.1); c = [0.95 * b, 0.3 * b, 0.1 * b]; }
+    else {
+      const edge = i < nWall + nDots + nEdge, h = Math.random() < 0.62 ? hands[0] : hands[1];
+      for (let k = 0; k < 300; k++) { x = h.x + gauss() * (edge ? 0.7 : 0.95) * h.s; y = h.y - 0.3 * h.s + gauss() * (edge ? 0.85 : 1.1) * h.s; if (inHands(x, y, 0)) continue; if (edge && !inHands(x, y, 0.09)) continue; break; }
+      z = gauss() * 0.02; const b = rnd(0.5, 1.1) * (edge ? 1.2 : 1); c = [0.9 * b, 0.28 * b, 0.1 * b];
+    }
+    set3(s.pos, i, x, y, z); set3(s.col, i, c[0], c[1], c[2]);
+  }
+  return s;
+}
+function buildWheat() {
+  const s = shape(), G = -1.4, st = [];
+  for (let ix = 0; ix < 18; ix++) for (let iz = 0; iz < 9; iz++) st.push({ x: -4.2 + ix * 0.5 + rnd(-0.12, 0.12), z: -2.6 + iz * 0.45 + rnd(-0.1, 0.1), h: 1.3 + rnd(0, 0.7) * (1 - iz / 12), lean: rnd(-0.15, 0.15) });
+  const base = new Float32Array(N * 3), UH = new Float32Array(N), nSun = Math.floor(N * 0.06), nGround = Math.floor(N * 0.18), nStem = Math.floor(N * 0.3);
+  for (let i = 0; i < N; i++) {
+    let x, y, z, c, uh = 0;
+    if (i < nSun) { const halo = Math.random() < 0.35, a = rnd(0, TAU), r = halo ? rnd(0.75, 1.5) : Math.sqrt(Math.random()) * 0.75; x = 2.6 + Math.cos(a) * r; y = 1.9 + Math.sin(a) * r; z = -3.5; const b = halo ? rnd(0.1, 0.3) * (1.5 - r) : rnd(0.7, 1.1); c = [b, 0.72 * b, 0.32 * b]; }
+    else if (i < nSun + nGround) { x = rnd(-5, 5); z = rnd(-3, 1.5); y = G + Math.sin(z * 14) * 0.015; const b = rnd(0.15, 0.35); c = [0.6 * b, 0.38 * b, 0.18 * b]; }
+    else if (i < nSun + nGround + nStem) { const k = st[Math.floor(Math.random() * st.length)], u = Math.random(); x = k.x + k.lean * u * u; y = G + u * k.h; z = k.z; uh = u; const b = rnd(0.35, 0.75); c = [0.6 * b, 0.62 * b, 0.22 * b]; }
+    else { const k = st[Math.floor(Math.random() * st.length)], v = Math.random(), a = rnd(0, TAU), rr = 0.055 * (1 - Math.abs(v - 0.5) * 1.3); x = k.x + k.lean + Math.cos(a) * rr; y = G + k.h * 0.86 + v * 0.36; z = k.z + Math.sin(a) * rr; uh = (y - G) / k.h; const b = rnd(0.7, 1.1); c = [b, 0.78 * b, 0.32 * b]; }
+    set3(base, i, x, y, z); UH[i] = uh; set3(s.col, i, c[0], c[1], c[2]);
+  }
+  s.dyn = (t, o) => { for (let i = 0; i < N; i++) { const x = base[i * 3], y = base[i * 3 + 1], z = base[i * 3 + 2], u = UH[i], sw = u ? (Math.sin(t * 1.4 + x * 0.6 + z * 0.9) * 0.16 + Math.sin(t * 3.1 + x * 2) * 0.02) * u * u : 0; o[i * 3] = x + sw; o[i * 3 + 1] = y - Math.abs(sw) * 0.25; o[i * 3 + 2] = z; } };
+  s.dyn(0, s.pos);
+  return s;
+}
+function buildPyramids() {
+  const s = shape(), G = -1.3, pyr = [{ x: -2.1, z: -0.6, b: 1.2, h: 1.15 }, { x: 0.3, z: -1.6, b: 1.75, h: 1.7 }, { x: 2.4, z: -0.3, b: 0.75, h: 0.72 }];
+  const wts = pyr.map(p => p.b * p.b), wt = wts.reduce((a, b) => a + b, 0);
+  const pickP = () => { let x = Math.random() * wt; for (let k = 0; k < pyr.length; k++) { if (x < wts[k]) return pyr[k]; x -= wts[k]; } return pyr[0]; };
+  const shade = [0.85, 0.45, 0.6, 1.0], nFace = Math.floor(N * 0.55), nEdge = Math.floor(N * 0.1), nGround = Math.floor(N * 0.22), nSun = Math.floor(N * 0.06);
+  for (let i = 0; i < N; i++) {
+    let x, y, z, c;
+    if (i < nFace + nEdge) {
+      const p = pickP(), ap = [p.x, G + p.h, p.z], cs = [[p.x - p.b, p.z + p.b], [p.x + p.b, p.z + p.b], [p.x + p.b, p.z - p.b], [p.x - p.b, p.z - p.b]], f = Math.floor(Math.random() * 4), c1 = cs[f], c2 = cs[(f + 1) % 4];
+      if (i < nFace) { const r1 = Math.sqrt(Math.random()), r2 = Math.random(), bx = c1[0] + (c2[0] - c1[0]) * r2, bz = c1[1] + (c2[1] - c1[1]) * r2; x = ap[0] + (bx - ap[0]) * r1; y = ap[1] + (G - ap[1]) * r1; z = ap[2] + (bz - ap[2]) * r1; const course = ((y - G) / p.h * 16) % 1 < 0.18 ? 1.3 : 1, b = rnd(0.5, 0.85) * shade[f] * course; c = [b, 0.78 * b, 0.48 * b]; }
+      else { const u = Math.random(); x = ap[0] + (c1[0] - ap[0]) * u; y = ap[1] + (G - ap[1]) * u; z = ap[2] + (c1[1] - ap[2]) * u; const b = rnd(0.9, 1.3); c = [b, 0.85 * b, 0.55 * b]; }
+    } else if (i < nFace + nEdge + nGround) { x = rnd(-6, 6); z = rnd(-4, 2); y = G - 0.02 + 0.05 * Math.sin(x * 1.1 + z * 0.7) + 0.03 * Math.sin(x * 3.3 - z * 2.1); const b = rnd(0.18, 0.4); c = [0.75 * b, 0.55 * b, 0.3 * b]; }
+    else if (i < nFace + nEdge + nGround + nSun) { const halo = Math.random() < 0.35, a = rnd(0, TAU), r = halo ? rnd(0.8, 1.6) : Math.sqrt(Math.random()) * 0.8; x = -3.2 + Math.cos(a) * r; y = 1.4 + Math.sin(a) * r; z = -5; const b = halo ? rnd(0.08, 0.25) * (1.7 - r) : rnd(0.8, 1.1); c = [b, 0.5 * b, 0.2 * b]; }
+    else { x = rnd(-8, 8); y = rnd(0.2, 4); z = -6; const b = rnd(0.2, 0.6); c = [0.7 * b, 0.75 * b, b]; }
+    set3(s.pos, i, x, y, z); set3(s.col, i, c[0], c[1], c[2]);
+  }
+  return s;
+}
+function buildGears() {
+  const s = shape(), gears = [{ x: -1.15, y: -0.15, R: 1.15, n: 14, c: [0.95, 0.55, 0.22] }, { x: 0.62, y: 0.72, R: 0.72, n: 9, c: [1, 0.78, 0.36] }, { x: 1.62, y: -0.28, R: 0.5, n: 7, c: [0.72, 0.8, 0.95] }];
+  gears[0].w = 0.45; gears[1].w = -gears[0].w * gears[0].R / gears[1].R; gears[2].w = -gears[1].w * gears[1].R / gears[2].R;
+  const wts = gears.map(g => g.R * g.R), wt = wts.reduce((a, b) => a + b, 0), nG = Math.floor(N * 0.84), nCh = Math.floor(N * 0.04);
+  const GI = new Uint8Array(N), PR = new Float32Array(N), PA = new Float32Array(N), PZ = new Float32Array(N), SD = new Float32Array(N);
+  for (let i = 0; i < nG; i++) {
+    let x = Math.random() * wt, k = 0; while (k < 2 && x > wts[k]) { x -= wts[k]; k++; }
+    const g = gears[k], q = Math.random(); let r, a, tooth = false;
+    if (q < 0.5) { r = g.R * rnd(0.78, 1); a = rnd(0, TAU); }
+    else if (q < 0.72) { const t = Math.floor(Math.random() * g.n); a = t * TAU / g.n + rnd(-0.5, 0.5) * (TAU / g.n) * 0.45; r = g.R + rnd(0, 0.15); tooth = true; }
+    else if (q < 0.86) { const t = Math.floor(Math.random() * 5); r = rnd(0.2, 0.8) * g.R; a = t * TAU / 5 + (Math.random() - 0.5) * 0.1 / Math.max(r, 0.1); }
+    else { r = g.R * rnd(0.1, 0.22); a = rnd(0, TAU); }
+    GI[i] = k; PR[i] = r; PA[i] = a; PZ[i] = rnd(-0.1, 0.1);
+    const b = rnd(0.55, 1) * (tooth ? 1.2 : 1); set3(s.col, i, g.c[0] * b, g.c[1] * b, g.c[2] * b);
+  }
+  for (let i = nG; i < nG + nCh; i++) { set3(s.pos, i, rnd(2.45, 2.8), rnd(-1.7, 0.5), rnd(-0.15, 0.15)); const b = rnd(0.3, 0.6); set3(s.col, i, 0.75 * b, 0.3 * b, 0.18 * b); }
+  for (let i = nG + nCh; i < N; i++) { PA[i] = Math.random(); SD[i] = Math.random(); }
+  s.dyn = (t, o, oc) => {
+    for (let i = 0; i < nG; i++) { const g = gears[GI[i]], a = PA[i] + g.w * t; o[i * 3] = g.x + Math.cos(a) * PR[i]; o[i * 3 + 1] = g.y + Math.sin(a) * PR[i]; o[i * 3 + 2] = PZ[i]; }
+    for (let i = nG; i < nG + nCh; i++) { o[i * 3] = s.pos[i * 3]; o[i * 3 + 1] = s.pos[i * 3 + 1]; o[i * 3 + 2] = s.pos[i * 3 + 2]; }
+    for (let i = nG + nCh; i < N; i++) { const u = (PA[i] + t * 0.12) % 1, sd = SD[i]; o[i * 3] = 2.62 + Math.sin(u * 5 + sd * 6) * 0.35 * u + u * 1.3; o[i * 3 + 1] = 0.55 + u * 3; o[i * 3 + 2] = Math.cos(sd * 9 + u * 3) * 0.4 * u; if (oc) { const k = (1 - u) * 0.55; set3(oc, i, 0.7 * k, 0.7 * k, 0.78 * k); } }
+  };
+  s.dyn(0, s.pos, s.col);
+  return s;
+}
+function buildCity() {
+  const s = shape(), G = -1.3, bl = [];
+  for (let ix = -6; ix <= 6; ix++) for (let iz = -4; iz <= 1; iz++) { const x = ix * 0.62, z = iz * 0.62, d = Math.hypot(x * 0.8, z + 1.2); bl.push({ x, z, h: 0.25 + Math.pow(Math.random(), 2) * 2.6 * Math.max(0.15, 1 - d / 5), w: 0.22 + rnd(0, 0.06) }); }
+  const wts = bl.map(b => b.h * b.w), wt = wts.reduce((a, b) => a + b, 0);
+  const pickB = () => { let x = Math.random() * wt; for (let k = 0; k < bl.length; k++) { if (x < wts[k]) return k; x -= wts[k]; } return 0; };
+  const hash = n => { const v = Math.sin(n) * 43758.5453; return v - Math.floor(v); }, lines = [];
+  for (let ix = -7; ix <= 6; ix++) lines.push([(ix + 0.5) * 0.62, -3.1, (ix + 0.5) * 0.62, 1.1]);
+  for (let iz = -5; iz <= 1; iz++) lines.push([-4.2, (iz + 0.5) * 0.62, 4.2, (iz + 0.5) * 0.62]);
+  const nEdge = Math.floor(N * 0.12), nTrace = Math.floor(N * 0.12), nPulse = Math.floor(N * 0.13), nWin = N - nEdge - nTrace - nPulse;
+  const LI = new Uint8Array(N), U0 = new Float32Array(N), SPD = new Float32Array(N), pal = [[0.3, 0.75, 1], [1, 0.75, 0.45], [1, 0.3, 0.75]];
+  for (let i = 0; i < N; i++) {
+    let x, y, z, c;
+    if (i < nWin) {
+      const bi = pickB(), b = bl[bi], f = Math.floor(Math.random() * 4), rows = Math.max(1, Math.floor(b.h / 0.12)), col = Math.floor(Math.random() * 3), row = Math.floor(Math.random() * rows), cu = ((col + 0.5) / 3 * 2 - 1) * b.w;
+      if (f === 0) { x = b.x + cu; z = b.z + b.w; } else if (f === 1) { x = b.x + b.w; z = b.z + cu; } else if (f === 2) { x = b.x + cu; z = b.z - b.w; } else { x = b.x - b.w; z = b.z + cu; }
+      x += gauss() * 0.01; y = G + (row + 0.5) * 0.12 + gauss() * 0.01; z += gauss() * 0.01;
+      const lit = hash(bi * 12.9898 + f * 78.233 + row * 37.719 + col * 11.13) > 0.35, hb = hash(bi * 3.7), p = hb < 0.7 ? pal[0] : hb < 0.9 ? pal[1] : pal[2], k = lit ? rnd(0.7, 1.05) : 0.1;
+      c = [p[0] * k, p[1] * k, p[2] * k];
+    } else if (i < nWin + nEdge) {
+      const b = bl[pickB()], sx = Math.random() < 0.5 ? -1 : 1, sz = Math.random() < 0.5 ? -1 : 1;
+      if (Math.random() < 0.7) { x = b.x + sx * b.w; z = b.z + sz * b.w; y = G + Math.random() * b.h; } else { y = G + b.h; const u = rnd(-1, 1) * b.w; if (Math.random() < 0.5) { x = b.x + u; z = b.z + sz * b.w; } else { x = b.x + sx * b.w; z = b.z + u; } }
+      const k = rnd(0.35, 0.6); c = [0.4 * k, 0.7 * k, k];
+    } else {
+      const l = Math.floor(Math.random() * lines.length), L = lines[l], u = Math.random();
+      LI[i] = l; U0[i] = u; SPD[i] = rnd(0.08, 0.2) * (Math.random() < 0.5 ? 1 : -1); x = L[0] + (L[2] - L[0]) * u; y = G; z = L[1] + (L[3] - L[1]) * u;
+      if (i < nWin + nEdge + nTrace) { const k = rnd(0.2, 0.45); c = [0.1 * k, 0.45 * k, 0.8 * k]; } else { const k = rnd(1, 1.4); c = Math.random() < 0.75 ? [0.5 * k, k, k] : [k, 0.4 * k, 0.9 * k]; }
+    }
+    set3(s.pos, i, x, y, z); set3(s.col, i, c[0], c[1], c[2]);
+  }
+  const p0 = nWin + nEdge + nTrace;
+  s.dyn = (t, o) => { o.set(s.pos.subarray(0, p0 * 3)); for (let i = p0; i < N; i++) { const L = lines[LI[i]], u = ((U0[i] + t * SPD[i]) % 1 + 1) % 1; o[i * 3] = L[0] + (L[2] - L[0]) * u; o[i * 3 + 1] = G + 0.01; o[i * 3 + 2] = L[1] + (L[3] - L[1]) * u; } };
+  return s;
+}
+function buildNeural() {
+  const s = shape(), layers = [7, 12, 16, 12, 7], nodes = [], ga = Math.PI * (3 - Math.sqrt(5));
+  layers.forEach((cnt, L) => { const x = -3.2 + L * 1.6, arr = []; for (let k = 0; k < cnt; k++) { const rr = Math.sqrt((k + 0.5) / cnt); arr.push([x + gauss() * 0.06, rr * Math.cos(ga * k) * 1.55, rr * Math.sin(ga * k) * 1.1]); } nodes.push(arr); });
+  const edges = [];
+  for (let L = 0; L < layers.length - 1; L++) { nodes[L].forEach(a => { for (let e = 0; e < 3; e++) edges.push([a, nodes[L + 1][Math.floor(Math.random() * nodes[L + 1].length)]]); }); nodes[L + 1].forEach(b => edges.push([nodes[L][Math.floor(Math.random() * nodes[L].length)], b])); }
+  const flat = nodes.flat(), nNode = Math.floor(N * 0.22), nEdge = Math.floor(N * 0.33);
+  const base = new Float32Array(N * 3), EI = new Uint16Array(N), U0 = new Float32Array(N), SPD = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    let x, y, z, c;
+    if (i < nNode) { const n = flat[Math.floor(Math.random() * flat.length)], v = unitVec(), r = Math.random() < 0.8 ? rnd(0.04, 0.09) : rnd(0.09, 0.2); x = n[0] + v[0] * r; y = n[1] + v[1] * r; z = n[2] + v[2] * r; const k = rnd(0.6, 1.2); c = [0.85 * k, 0.75 * k, k]; }
+    else {
+      const e = Math.floor(Math.random() * edges.length), E = edges[e], u = Math.random(); EI[i] = e; U0[i] = u; SPD[i] = rnd(0.3, 0.75);
+      x = E[0][0] + (E[1][0] - E[0][0]) * u; y = E[0][1] + (E[1][1] - E[0][1]) * u; z = E[0][2] + (E[1][2] - E[0][2]) * u;
+      if (i < nNode + nEdge) { x += gauss() * 0.008; y += gauss() * 0.008; const k = rnd(0.2, 0.45); c = [0.35 * k, 0.3 * k, 0.85 * k]; } else { const k = rnd(0.9, 1.3); c = Math.random() < 0.8 ? [0.35 * k, 0.95 * k, k] : [k, 0.45 * k, 0.9 * k]; }
+    }
+    set3(base, i, x, y, z); set3(s.col, i, c[0], c[1], c[2]);
+  }
+  s.dyn = (t, o) => {
+    const a = Math.sin(t * 0.18) * 0.55, ca = Math.cos(a), sa = Math.sin(a);
+    for (let i = 0; i < N; i++) { let x, y, z; if (i < nNode + nEdge) { x = base[i * 3]; y = base[i * 3 + 1]; z = base[i * 3 + 2]; } else { const E = edges[EI[i]], u = (U0[i] + t * SPD[i]) % 1; x = E[0][0] + (E[1][0] - E[0][0]) * u; y = E[0][1] + (E[1][1] - E[0][1]) * u; z = E[0][2] + (E[1][2] - E[0][2]) * u; } o[i * 3] = x * ca + z * sa; o[i * 3 + 1] = y; o[i * 3 + 2] = -x * sa + z * ca; }
+  };
+  s.dyn(0, s.pos);
+  return s;
+}
+
+/* ================= SHAPES: A HUMAN LIFE ================= */
+function sperm(w, E, R) { return { w, make(st, n, s) {
+  const K = isMobile ? 18 : 28, sp = [];
+  for (let k = 0; k < K; k++) {
+    const S = [rnd(-6.5, -2.5), rnd(-2.6, 2.6), rnd(-2.2, 1.2)], d = [S[0] - E[0], S[1] - E[1], S[2] - E[2]], L = Math.hypot(...d);
+    const Tg = [E[0] + d[0] / L * R * 1.1, E[1] + d[1] / L * R * 1.1, E[2] + d[2] / L * R * 1.1], D = [Tg[0] - S[0], Tg[1] - S[1], Tg[2] - S[2]], DL = Math.hypot(...D), dir = D.map(v => v / DL);
+    let pp = [dir[1], -dir[0], 0]; const pl = Math.hypot(...pp) || 1; pp = pp.map(v => v / pl);
+    sp.push({ S, Tg, dir, pp, off: Math.random(), spd: rnd(0.035, 0.06) });
+  }
+  const ID = new Uint8Array(n), SP = new Float32Array(n), J = new Float32Array(n * 3), H = new Float32Array(K * 3);
+  for (let j = 0; j < n; j++) {
+    ID[j] = j % K; const head = Math.random() < 0.28; SP[j] = head ? -1 : Math.random();
+    if (head) { const v = unitVec(); J[j * 3] = v[0] * 0.08; J[j * 3 + 1] = v[1] * 0.055; J[j * 3 + 2] = v[2] * 0.055; const b = rnd(0.8, 1.2); set3(s.col, st + j, 0.9 * b, 0.95 * b, b); }
+    else { const b = rnd(0.35, 0.7) * (1 - SP[j] * 0.6); set3(s.col, st + j, 0.6 * b, 0.75 * b, b); }
+  }
+  const dyn = (t, o) => {
+    for (let k = 0; k < K; k++) { const q = sp[k], u = Math.min(1, ((q.off + t * q.spd) % 1) * 1.25), e = 1 - (1 - u) * (1 - u); for (let a = 0; a < 3; a++) H[k * 3 + a] = q.S[a] + (q.Tg[a] - q.S[a]) * e; }
+    for (let j = 0; j < n; j++) {
+      const k = ID[j], q = sp[k], i = (st + j) * 3; let x = H[k * 3], y = H[k * 3 + 1], z = H[k * 3 + 2];
+      if (SP[j] < 0) { x += J[j * 3]; y += J[j * 3 + 1]; z += J[j * 3 + 2]; }
+      else { const sv = SP[j], wv = Math.sin(sv * 9 - t * 14 + k) * 0.1 * sv; x += -q.dir[0] * sv * 0.8 + q.pp[0] * wv; y += -q.dir[1] * sv * 0.8 + q.pp[1] * wv; z += -q.dir[2] * sv * 0.8; }
+      o[i] = x; o[i + 1] = y; o[i + 2] = z;
+    }
+  };
+  dyn(0, s.pos); return dyn; } }; }
+function buildConception() {
+  const E = [1.3, 0, 0], R = 1.05;
+  return compose([
+    sphere(0.26, { c: E, r: R, color: [1, 0.85, 0.72], b0: 0.4, b1: 0.9, pulse: t => 1 + 0.012 * Math.sin(t * 1.2) }),
+    sphere(0.14, { c: E, r: R, in: 1.08, out: 1.42, color: [1, 0.5, 0.38], b0: 0.12, b1: 0.4, spin: 0.05 }),
+    sphere(0.1, { c: E, r: R * 0.95, solid: true, color: [1, 0.7, 0.6], b0: 0.08, b1: 0.25 }),
+    sphere(0.04, { c: [E[0] + 0.15, 0.1, 0.2], r: 0.26, solid: true, color: [1, 0.72, 0.95], b0: 0.8, b1: 1.3, pulse: t => 1 + 0.05 * Math.sin(t * 2) }),
+    sperm(0.34, E, R),
+    stat(0.12, (p, c) => { p[0] = rnd(-6, 5); p[1] = rnd(-3, 3); p[2] = rnd(-3, 1); setc(c, [1, 0.5, 0.6], rnd(0.04, 0.18)); }),
+  ]);
+}
+function buildWomb() {
+  const segColor = []; segColor[17] = [1, 0.18, 0.22]; for (let k = 18; k < 23; k++) segColor[k] = [1, 0.5, 0.55]; segColor[23] = [0.85, 0.25, 0.3];
+  const beat = t => Math.pow(Math.max(0, Math.sin(t * 7.5)), 10);
+  return compose([
+    figure(0.52, { rig: rigFetus, x: -0.1, s: 1.25, G: 0, ox: 0, speed: 7.5, color: [1, 0.72, 0.62], segColor }),
+    sphere(0.24, { c: [0.1, 0, 0], r: 2.0, color: [1, 0.42, 0.5], b0: 0.12, b1: 0.38, pulse: t => 1 + 0.008 * beat(t) }),
+    sphere(0.14, { c: [0.1, 0, 0], r: 1.9, solid: true, color: [1, 0.6, 0.7], b0: 0.05, b1: 0.22, spin: 0.06 }),
+    stat(0.1, (p, c) => { const v = unitVec(), r = rnd(2.3, 5); p[0] = v[0] * r; p[1] = v[1] * r * 0.7; p[2] = v[2] * r - 1; setc(c, [0.9, 0.2, 0.3], rnd(0.03, 0.14)); }),
+  ]);
+}
+function buildBirth() {
+  return compose([
+    figure(0.5, { rig: rigBaby, x: -0.4, s: 1.6, speed: 2.2, color: [1, 0.85, 0.7], headGlow: true }),
+    ground(0.1, { speed: 0.22, color: [1, 0.85, 0.7], bright: 0.6 }),
+    flow(0.26, { speed: 0, fn: (u, a, b, t, p) => { const ru = (Math.floor(b * 5) / 5 + t * 0.12) % 1, r = 0.2 + ru * 4.4, q = a * TAU; p[0] = 0.4 + Math.cos(q) * r; p[1] = -0.4 + Math.sin(q) * r; p[2] = -1.6 - (b * 5 % 1) * 0.15; },
+      col: (u, a, b, c, t) => { const ru = (Math.floor(b * 5) / 5 + t * 0.12) % 1; setc(c, [1, 0.82, 0.55], (1 - ru) * (1 - ru) * 0.8); } }),
+    flow(0.14, { speed: 0.05, color: [1, 0.9, 0.7], b0: 0.3, b1: 0.9, fn: (u, a, b, t, p) => { p[0] = (a - 0.5) * 8; p[1] = -1.2 + u * 4.5; p[2] = (b - 0.5) * 3 - 0.5 + Math.sin(u * 6 + a * 9) * 0.2; } }),
+  ]);
+}
+function buildChildhood() {
+  const G = -1.25;
+  return compose([
+    figure(0.56, { p: 1, walk: true, prop: CHILD, speed: 5.5, s: 1.15, x: -0.8, color: [1, 0.8, 0.45], headGlow: true }),
+    sphere(0.07, { c: [1.3, G + 0.2, 0.3], r: 0.2, colorFn: v => Math.floor((Math.atan2(v[2], v[0]) + Math.PI) / (Math.PI / 3)) % 2 ? [1, 0.3, 0.3] : [1, 0.95, 0.9], b0: 0.7, b1: 1.1, spin: 4, move: t => [Math.sin(t * 1.2) * 0.3, Math.abs(Math.sin(t * 2.8)) * 1.1, 0] }),
+    ground(0.17, { speed: 1.1, color: [0.35, 0.8, 0.3], bright: 0.9 }),
+    flow(0.1, { speed: 0.05, color: [0.95, 1, 0.9], b0: 0.3, b1: 0.8, fn: (u, a, b, t, p) => { p[0] = -5 + u * 10; p[1] = -0.6 + Math.sin(u * 6 + a * 10) * 0.6 + b * 2.8; p[2] = (a - 0.5) * 3; } }),
+    stat(0.1, (p, c) => { p[0] = rnd(-6, 6); p[1] = rnd(1.5, 3.5); p[2] = rnd(-5, -3); setc(c, [0.6, 0.8, 1], rnd(0.04, 0.2)); }),
+  ]);
+}
+function buildStudent() {
+  const G = -1.25, fx = -0.6, W = (p, lx, ly, z) => { p[0] = fx + lx; p[1] = G + ly; p[2] = z; };
+  return compose([
+    figure(0.34, { rig: rigSit, x: fx, s: 1, ox: 0, speed: 3, color: [0.75, 0.88, 1], headGlow: true }),
+    stat(0.12, (p, c) => {
+      const q = Math.random();
+      if (q < 0.3) W(p, rnd(-0.25, 0.3), 0.53 + rnd(0, 0.04), rnd(-0.3, 0.3));
+      else if (q < 0.45) W(p, -0.28, rnd(0.56, 1.3), rnd(-0.3, 0.3));
+      else if (q < 0.85) W(p, rnd(0.45, 1.8), 0.97 + rnd(0, 0.04), rnd(-0.7, 0.7));
+      else { const lx = [0.5, 1.75, -0.22, 0.25][Math.floor(Math.random() * 4)], z = Math.random() < 0.5 ? -0.6 : 0.6; W(p, lx, rnd(0, lx > 0.4 ? 0.97 : 0.53), z * (lx > 0.4 ? 1 : 0.45)); }
+      setc(c, [0.55, 0.45, 0.35], rnd(0.3, 0.6));
+    }),
+    stat(0.06, (p, c) => { const side = Math.random() < 0.5 ? -1 : 1, u = Math.random(); W(p, rnd(0.72, 1.0), 1.02 + u * 0.06, side * u * 0.32); setc(c, [1, 0.95, 0.8], rnd(0.8, 1.3)); }),
+    flow(0.08, { speed: 0.18, color: [1, 0.85, 0.5], b0: 0.5, b1: 1.1, fn: (u, a, b, t, p) => { const r = 0.1 + u * 1.6, q = a * TAU + u * 4 + t * 0.3; p[0] = fx + 0.86 + Math.cos(q) * r * 0.6; p[1] = G + 1.05 + u * 2.4; p[2] = Math.sin(q) * r * 0.5; } }),
+    glyphs(0.3, { words: ['E=mc²', 'π', 'Σ', 'DNA', 'a²+b²', '∫', 'H₂O', 'ABC', '∞', '</>'], colors: [[0.4, 0.9, 1], [1, 0.8, 0.4], [0.8, 0.6, 1]], c: [-0.1, 1.55, -0.4], R: 2.7, size: 0.55, sp: 0.22 }),
+    stat(0.1, (p, c) => { p[0] = rnd(-6, 6); p[1] = rnd(-1.25, 3.5); p[2] = rnd(-5, -2); setc(c, [0.4, 0.5, 1], rnd(0.03, 0.15)); }),
+  ]);
+}
+function buildWork() {
+  const K = 10, sw = 0.62, sh = 0.26, x0 = -3.1, y0 = -1.7;
+  return compose([
+    figure(0.4, { p: 1, walk: true, speed: 3.6, s: 0.9, x: 0, G: 0, color: [0.75, 0.88, 1], path: t => { const u = (t / 9) % 1, x = x0 + sw * 0.8 + u * (K - 1.6) * sw; return [x, y0 + sh + (x - x0 - sw / 2) * sh / sw]; } }),
+    stat(0.3, (p, c) => { const k = Math.floor(Math.random() * K), tread = Math.random() < 0.65; p[2] = rnd(-0.9, 0.9); if (tread) { const fu = Math.random(); p[0] = x0 + k * sw + fu * sw; p[1] = y0 + (k + 1) * sh; setc(c, [0.45, 0.75, 1], (fu > 0.92 ? 1.2 : 0.5) * rnd(0.6, 1)); } else { p[0] = x0 + k * sw; p[1] = y0 + k * sh + Math.random() * sh; setc(c, [0.3, 0.5, 0.9], rnd(0.2, 0.5)); } }),
+    stat(0.2, (p, c) => { const bx = Math.floor(rnd(-7, 7)) * 0.7, h = 0.8 + Math.abs(Math.sin(bx * 3.7)) * 3; p[0] = bx + rnd(-0.25, 0.25); p[1] = -1.8 + Math.random() * h; p[2] = -4 - Math.abs(Math.sin(bx)) * 1.5; setc(c, Math.random() < 0.3 ? [1, 0.8, 0.5] : [0.4, 0.6, 1], rnd(0.1, 0.35)); }),
+    flow(0.1, { speed: 0.06, color: [1, 0.85, 0.4], b0: 0.4, b1: 1.1, fn: (u, a, b, t, p) => { p[0] = (a - 0.5) * 9; p[1] = -1.8 + u * 5; p[2] = (b - 0.5) * 3; } }),
+  ]);
+}
+function buildFamily() {
+  return compose([
+    figure(0.3, { p: 1, walk: true, speed: 3, x: 0, z: -0.65, s: 1, color: [0.7, 0.85, 1] }),
+    figure(0.27, { p: 1, walk: true, speed: 3, off: 0.4, x: 0.1, z: 0, s: 0.93, color: [1, 0.7, 0.8] }),
+    figure(0.12, { p: 1, walk: true, speed: 4.6, off: 1.3, x: 0.25, z: 0.6, s: 0.62, prop: CHILD, color: [1, 0.85, 0.5], headGlow: true }),
+    ground(0.13, { speed: 0.8, z0: -2, z1: 2, color: [0.6, 0.5, 0.45] }),
+    flow(0.18, { speed: 0, fn: (u, a, b, t, p) => { const h = Math.floor(b * 10), uh = (h * 0.1 + t * 0.07) % 1, q = a * TAU, s3 = Math.sin(q), sz = 0.02 * (0.6 + (h % 3) * 0.25); p[0] = -2.5 + (h * 0.67) % 5 + 16 * s3 * s3 * s3 * sz + Math.sin(uh * 5 + h) * 0.2; p[1] = -0.8 + uh * 4.2 + (13 * Math.cos(q) - 5 * Math.cos(2 * q) - 2 * Math.cos(3 * q) - Math.cos(4 * q)) * sz; p[2] = -1.5 + (h % 4) * 0.35; },
+      col: (u, a, b, c, t) => { const h = Math.floor(b * 10), uh = (h * 0.1 + t * 0.07) % 1; setc(c, [1, 0.35, 0.55], Math.sin(uh * Math.PI) * 1.2); } }),
+  ]);
+}
+function boxPt(p, x0, x1, y0, y1, z0, z1) {
+  const ax = x1 - x0, ay = y1 - y0, az = z1 - z0, aT = ax * az, aF = ax * ay, aS = az * ay, r = Math.random() * (aT + aF + 2 * aS);
+  if (r < aT) { p[0] = rnd(x0, x1); p[1] = y1; p[2] = rnd(z0, z1); return 1; }
+  if (r < aT + aF) { p[0] = rnd(x0, x1); p[1] = rnd(y0, y1); p[2] = z1; return 0.8; }
+  const left = r < aT + aF + aS; p[0] = left ? x0 : x1; p[1] = rnd(y0, y1); p[2] = rnd(z0, z1); return left ? 0.95 : 0.55;
+}
+function buildTemple() {
+  const G = -1.3, Yp = G + 0.54, Yb = Yp + 0.9, H = 2.1, Yt = Yb + H, stone = [1, 0.74, 0.46];
+  return compose([
+    stat(0.13, (p, c) => { const i = Math.floor(Math.random() * 3), sh = boxPt(p, -(2.6 - 0.4 * i), 2.6 - 0.4 * i, G + 0.18 * i, G + 0.18 * (i + 1), -1.6 + 0.15 * i, 1.5 - 0.25 * i); setc(c, stone, sh * rnd(0.35, 0.7)); }),
+    stat(0.1, (p, c) => { const sh = boxPt(p, -0.85, 0.85, Yp, Yb, -1.3, -0.1), band = ((p[1] - Yp) * 10) % 1 < 0.2 ? 1.3 : 1; setc(c, stone, sh * band * rnd(0.4, 0.75)); }),
+    stat(0.26, (p, c) => { let v; do { v = Math.random(); } while (Math.random() > Math.pow(1 - v, 0.6)); const r = 0.9 * Math.pow(1 - v, 0.6) * (1 + 0.05 * Math.sin(v * TAU * 6)), q = rnd(0, TAU), cq = Math.cos(q), sq = Math.sin(q); p[0] = Math.sign(cq) * Math.pow(Math.abs(cq), 0.6) * r; p[1] = Yb + v * H; p[2] = -0.7 + Math.sign(sq) * Math.pow(Math.abs(sq), 0.6) * r; const sh = 0.6 + 0.3 * Math.max(0, sq) + 0.25 * Math.max(0, -cq), band = (v * 14) % 1 < 0.2 ? 1.3 : 1; setc(c, [1, 0.72, 0.42], sh * band * rnd(0.55, 0.9)); }),
+    stat(0.03, (p, c) => { if (Math.random() < 0.7) { const q = rnd(0, TAU), r = 0.3 * (1 + 0.1 * Math.cos(q * 16)); p[0] = Math.cos(q) * r; p[1] = Yt + rnd(-0.06, 0.06); p[2] = -0.7 + Math.sin(q) * r; setc(c, stone, rnd(0.6, 1)); } else { const v = unitVec(); p[0] = v[0] * 0.1; p[1] = Yt + 0.18 + v[1] * 0.12; p[2] = -0.7 + v[2] * 0.1; setc(c, [1, 0.8, 0.3], rnd(1, 1.4)); } }),
+    flow(0.025, { speed: 0, fn: (u, a, b, t, p) => { if (a < 0.3) { p[0] = 0.02; p[1] = Yt + 0.1 + b * 0.7; p[2] = -0.7; } else { p[0] = 0.02 + b * 0.55; p[1] = Yt + 0.78 - b * 0.12 + (a - 0.65) * 0.34 * (1 - b); p[2] = -0.7 + Math.sin(b * 5 - t * 6) * 0.09 * b; } }, col: (u, a, b, c) => setc(c, a < 0.3 ? [0.8, 0.7, 0.6] : [1, 0.5, 0.1], a < 0.3 ? 0.6 : 1.1) }),
+    stat(0.1, (p, c) => { const q = Math.random(); if (q < 0.55) { const cx = [-1.15, -0.55, 0.55, 1.15][Math.floor(Math.random() * 4)], cz = Math.random() < 0.5 ? 1.0 : 0.3, a = rnd(0, TAU); p[0] = cx + Math.cos(a) * 0.07; p[1] = rnd(Yp, Yp + 0.85); p[2] = cz + Math.sin(a) * 0.07; setc(c, stone, rnd(0.4, 0.8)); } else if (q < 0.8) { setc(c, stone, boxPt(p, -1.4, 1.4, Yp + 0.85, Yp + 0.97, 0.05, 1.2) * rnd(0.4, 0.75)); } else { const i = Math.floor(Math.random() * 3), s2 = 1.2 - i * 0.35; setc(c, stone, boxPt(p, -s2, s2, Yp + 0.97 + i * 0.13, Yp + 1.1 + i * 0.13, 0.62 - s2 * 0.45, 0.62 + s2 * 0.45) * rnd(0.4, 0.75)); } }),
+    flow(0.06, { speed: 1.5, fn: (u, a, b, t, p) => { const idx = Math.floor(b * 14), row = idx < 7 ? 0 : 1, k = idx % 7; p[0] = -2.2 + k * 0.73 + (a - 0.5) * 0.06 * (1 - u); p[1] = (row ? Yp : G + 0.18) + 0.02 + u * 0.16; p[2] = row ? 1.0 : 1.5; }, col: (u, a, b, c) => setc(c, [1, 0.8, 0.35], 1.4 * (1 - u)) }),
+    flow(0.07, { speed: 0.04, fn: (u, a, b, t, p) => { p[0] = (a - 0.5) * 9 + Math.sin(u * 6 + b * 9) * 0.3; p[1] = G + 0.5 + u * 5; p[2] = -2 + (b - 0.5) * 4; }, col: (u, a, b, c) => setc(c, [1, 0.6, 0.2], Math.sin(u * Math.PI) * 1.1) }),
+    stat(0.04, (p, c) => { let x, y; do { const a = rnd(0, TAU), r = Math.sqrt(Math.random()) * 0.45; x = Math.cos(a) * r; y = Math.sin(a) * r; } while (Math.hypot(x - 0.18, y - 0.08) < 0.4); p[0] = 2.9 + x; p[1] = 2.3 + y; p[2] = -3; setc(c, [1, 0.95, 0.8], rnd(0.7, 1.1)); }),
+    stat(0.08, (p, c) => { p[0] = rnd(-6, 6); p[1] = G; p[2] = rnd(-3, 3); setc(c, [0.7, 0.5, 0.3], rnd(0.1, 0.3)); }),
+    stat(0.05, (p, c) => { p[0] = rnd(-8, 8); p[1] = rnd(0.5, 4.5); p[2] = rnd(-7, -4); setc(c, [0.7, 0.8, 1], rnd(0.2, 0.6)); }),
+  ]);
+}
+function buildOldAge() {
+  const pal = [[1, 0.45, 0.1], [0.95, 0.25, 0.1], [1, 0.75, 0.2]];
+  return compose([
+    figure(0.46, { rig: rigElder, x: 0, s: 1.05, speed: 1.6, color: [0.85, 0.85, 0.92] }),
+    ground(0.14, { speed: 0.3, color: [1, 0.5, 0.2], bright: 0.8 }),
+    flow(0.2, { speed: 0.06, fn: (u, a, b, t, p) => { p[0] = (a - 0.5) * 11 + Math.sin(u * 9 + b * 20) * 0.35 - u * 1.2; p[1] = 3.2 - u * 4.6; p[2] = (b - 0.5) * 4 - 0.5; }, col: (u, a, b, c) => setc(c, pal[Math.floor(b * 3)], 0.9) }),
+    sphere(0.1, { c: [-2.9, 0.3, -4], r: 0.9, solid: true, color: [1, 0.55, 0.25], b0: 0.6, b1: 1 }),
+    disk(0.1, { c: [-2.9, 0.3, -4.1], r0: 0.9, r1: 2.4, pow: 1.6, thick: 0.001, vertical: true, color: [1, 0.45, 0.2], b0: 0.03, b1: 0.18 }),
+  ]);
+}
+function buildDeath() {
+  return compose([
+    figure(0.6, { p: 1, walk: false, prop: { lean: 0.15 }, x: 0, s: 1.1, color: [0.8, 0.85, 1], dissolve: true }),
+    ground(0.08, { color: [0.5, 0.55, 0.8], bright: 0.5 }),
+    flow(0.12, { speed: 0.08, fn: (u, a, b, t, p) => { p[0] = (a - 0.5) * 0.5 * (1 + u * 2); p[1] = -1.2 + u * 6; p[2] = (b - 0.5) * 0.5 * (1 + u); }, col: (u, a, b, c) => setc(c, [0.5, 0.7, 1], (1 - u) * 0.55) }),
+    stat(0.2, (p, c) => { p[0] = rnd(-7, 7); p[1] = rnd(0.3, 4.5); p[2] = rnd(-6, -2); setc(c, Math.random() < 0.2 ? [1, 0.85, 0.6] : [0.7, 0.8, 1], rnd(0.2, 0.8)); }),
+  ]);
+}
+
+/* ================= SHAPES: THE AGE OF INTELLIGENCE ================= */
+// floating holographic UI panels orbiting a person
+function holoPanels(w, K) { return { w, make(st, n, s) {
+  const PK = new Uint8Array(n), PX = new Float32Array(n), PY = new Float32Array(n);
+  for (let j = 0; j < n; j++) {
+    const k = j % K, q = Math.random(); let x, y, br;
+    if (q < 0.3) { const e = Math.random(); if (e < 0.35) { x = rnd(-0.45, 0.45); y = 0.3; } else if (e < 0.7) { x = rnd(-0.45, 0.45); y = -0.3; } else { x = e < 0.85 ? -0.45 : 0.45; y = rnd(-0.3, 0.3); } br = 1.1; }
+    else if (q < 0.7) { const row = Math.floor(Math.random() * 5), len = 0.3 + ((row * 7 + k * 3) % 5) * 0.12; x = -0.38 + Math.random() * len; y = 0.18 - row * 0.09; br = 0.6; }
+    else { x = rnd(-0.38, 0.38); y = -0.2 + Math.sin(x * 9 + k) * 0.05 + (x + 0.38) * 0.1; br = 1; }
+    PK[j] = k; PX[j] = x; PY[j] = y; const c = k % 3 === 0 ? [1, 0.8, 0.4] : [0.4, 0.85, 1], b = br * rnd(0.6, 1); set3(s.col, st + j, c[0] * b, c[1] * b, c[2] * b);
+  }
+  const dyn = (t, out) => { for (let j = 0; j < n; j++) { const k = PK[j], a = k / K * TAU + t * 0.15; set3(out, st + j, Math.cos(a) * 3.0 + PX[j] * 1.1, 0.2 + Math.sin(k * 1.7) * 0.9 + Math.sin(t * 0.8 + k) * 0.08 + PY[j] * 1.1, Math.sin(a) * 1.6 - 0.6); } };
+  dyn(0, s.pos); return dyn; } }; }
+function buildAgents() {
+  const H = [-0.15, 0.88, 0], OC = [[0.4, 0.9, 1], [1, 0.8, 0.4], [0.8, 0.6, 1], [0.5, 1, 0.7], [1, 0.5, 0.7]];
+  const orb = (k, t) => { const a = k / 5 * TAU + t * (0.35 + k * 0.04), R = 1.5 + (k % 2) * 0.5; return [Math.cos(a) * R, 0.6 + Math.sin(t * 0.7 + k) * 0.5 + (k % 3 - 1) * 0.5, Math.sin(a) * R * 0.8]; };
+  return compose([
+    figure(0.3, { p: 1, walk: false, x: 0, s: 1.05, color: [0.8, 0.9, 1], headGlow: true }),
+    ...OC.map((c, k) => sphere(0.025, { c: [0, 0, 0], r: 0.11, solid: true, color: c, b0: 0.9, b1: 1.4, move: t => orb(k, t), pulse: t => 1 + 0.2 * Math.sin(t * 3 + k) })),
+    flow(0.12, { speed: 0.6, fn: (u, a, b, t, p) => { const P = orb(Math.floor(b * 5), t); p[0] = H[0] + (P[0] - H[0]) * u; p[1] = H[1] + (P[1] - H[1]) * u; p[2] = H[2] + (P[2] - H[2]) * u; }, col: (u, a, b, c) => setc(c, OC[Math.floor(b * 5)], 0.5 + 0.4 * Math.sin(u * TAU * 3)) }),
+    holoPanels(0.26, 6),
+    stat(0.1, (p, c) => { const a = rnd(0, TAU), ring = Math.random() < 0.5, r = ring ? Math.floor(rnd(1, 5)) * 0.9 : Math.sqrt(Math.random()) * 4.5; p[0] = Math.cos(a) * r; p[1] = -1.25; p[2] = Math.sin(a) * r * 0.7 - 0.5; setc(c, [0.3, 0.7, 1], ring ? rnd(0.3, 0.6) : rnd(0.05, 0.2)); }),
+    flow(0.07, { speed: 0.05, color: [0.5, 0.8, 1], b0: 0.2, b1: 0.7, fn: (u, a, b, t, p) => { p[0] = (a - 0.5) * 10; p[1] = -1.25 + u * 5; p[2] = (b - 0.5) * 4 - 1; } }),
+  ]);
+}
+function buildNeuralLink() {
+  const BY = 0.7;
+  return compose([
+    rigid(0.4, { c: [0, BY, 0], rotY: t => Math.sin(t * 0.25) * 0.5, init: (p, c) => {
+      if (Math.random() < 0.06) { const u = Math.random(), a = rnd(0, TAU); p[0] = Math.cos(a) * 0.1; p[1] = -0.35 - u * 0.55; p[2] = -0.25 - u * 0.1 + Math.sin(a) * 0.1; setc(c, [1, 0.6, 0.75], rnd(0.4, 0.8)); return; }
+      const v = unitVec(), sd = Math.random() < 0.5 ? -1 : 1, fold = 1 + 0.06 * Math.sin(v[1] * 18 + v[2] * 14 + sd) * Math.sin(v[2] * 11 - v[1] * 7);
+      p[0] = (sd * Math.abs(v[0]) * 0.85 + sd * 0.05) * fold; p[1] = v[1] * 0.72 * fold * (v[1] < 0 ? 0.7 : 1); p[2] = v[2] * 1.05 * fold;
+      const spark = Math.random() < 0.05; setc(c, spark ? [1, 1, 1] : mix([1, 0.5, 0.75], [0.7, 0.5, 1], Math.random()), spark ? 1.4 : (fold > 1 ? rnd(0.7, 1.05) : rnd(0.35, 0.6)));
+    } }),
+    flow(0.2, { speed: 0.35, vary: 0.3, fn: (u, a, b, t, p) => { const k = Math.floor(a * 48), ph = k * 2.4, sx = Math.cos(ph) * 0.45, sz = Math.sin(ph) * 0.55, ex = ((k % 8) - 3.5) * 0.14, ez = (Math.floor(k / 8) - 2.5) * 0.14, sy = BY - 0.4, bow = Math.sin(u * Math.PI) * 0.35; p[0] = sx + (ex - sx) * u + Math.sign(sx) * bow * 0.5; p[1] = sy + (-1.0 - sy) * u; p[2] = sz + (ez - sz) * u + Math.sign(sz) * bow * 0.3; }, col: (u, a, b, c, t) => setc(c, [0.4, 0.9, 1], 0.3 + 0.9 * Math.pow(0.5 + 0.5 * Math.sin(u * 30 - t * 8 + a * 50), 6)) }),
+    stat(0.08, (p, c) => { const x = rnd(-0.65, 0.65), z = rnd(-0.65, 0.65), pad = Math.abs((x / 0.14 + 100) % 1 - 0.5) < 0.2 && Math.abs((z / 0.14 + 100) % 1 - 0.5) < 0.2; p[0] = x; p[1] = -1.05 + (pad ? 0.02 : 0); p[2] = z; setc(c, pad ? [1, 0.85, 0.4] : [0.3, 0.5, 0.9], pad ? rnd(0.8, 1.2) : rnd(0.2, 0.4)); }),
+    flow(0.14, { speed: 0.15, vary: 0.4, fn: (u, a, b, t, p) => { const k = Math.floor(a * 16), ang = k / 16 * TAU, d = 0.7 + u * 4.5; p[0] = Math.cos(ang) * d; p[1] = -1.08; p[2] = Math.sin(ang) * d * 0.7; }, col: (u, a, b, c) => setc(c, b < 0.3 ? [0.5, 1, 1] : [0.2, 0.45, 0.9], b < 0.3 ? 1.2 * (1 - u) : 0.35) }),
+    stat(0.18, (p, c) => { p[0] = rnd(-6, 6); p[1] = rnd(-1, 3.5); p[2] = rnd(-5, -1.5); setc(c, [0.7, 0.5, 1], rnd(0.03, 0.18)); }),
+  ]);
+}
+// exponentially branching tree of light: each generation of AI builds the next
+function buildExplosion() {
+  const br = [], MAXD = 9;
+  (function grow(a, dir, len, d) {
+    const b = [a[0] + dir[0] * len, a[1] + dir[1] * len, a[2] + dir[2] * len]; br.push({ a, b, d, len });
+    if (d >= MAXD) return;
+    for (let k = 0; k < 2; k++) { let nd = [dir[0] + gauss() * 0.45, dir[1] + gauss() * 0.2 + 0.15, dir[2] + gauss() * 0.45]; const l = Math.hypot(...nd); nd = nd.map(v => v / l); grow(b, nd, len * 0.8, d + 1); }
+  })([0, -2.0, 0], [0, 1, 0], 1.0, 0);
+  return compose([
+    { w: 0.82, make(st, n, s) {
+      const cum = []; let acc = 0; br.forEach(x => { acc += x.len * (1 + x.d * 0.15); cum.push(acc); });
+      const BI = new Uint16Array(n), T = new Float32Array(n), J = new Float32Array(n * 3);
+      for (let j = 0; j < n; j++) {
+        const y = Math.random() * acc; let lo = 0, hi = cum.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < y) lo = m + 1; else hi = m; }
+        const B = br[lo], wdt = 0.05 * (1 - B.d / (MAXD + 1)) + 0.008; BI[j] = lo; T[j] = Math.random(); J[j * 3] = gauss() * wdt; J[j * 3 + 1] = gauss() * wdt; J[j * 3 + 2] = gauss() * wdt;
+        const tip = B.d === MAXD && T[j] > 0.75, c = tip ? [0.9, 0.7, 1] : mix([1, 0.75, 0.35], [0.45, 0.8, 1], B.d / MAXD), k = tip ? 1.6 : rnd(0.55, 1); set3(s.col, st + j, c[0] * k, c[1] * k, c[2] * k);
+      }
+      const dyn = (t, o, oc) => {
+        const g = Math.min(1, (t % 14) / 10), L = g * (MAXD + 1), ra = t * 0.1, ca = Math.cos(ra), sa = Math.sin(ra);
+        for (let j = 0; j < n; j++) {
+          const B = br[BI[j]], f = Math.max(0, Math.min(1, L - B.d)), tt = T[j] * f, i = (st + j) * 3;
+          const x = B.a[0] + (B.b[0] - B.a[0]) * tt + J[j * 3], y = B.a[1] + (B.b[1] - B.a[1]) * tt + J[j * 3 + 1], z = B.a[2] + (B.b[2] - B.a[2]) * tt + J[j * 3 + 2];
+          o[i] = x * ca + z * sa; o[i + 1] = y; o[i + 2] = -x * sa + z * ca;
+          if (oc) { const k = f > 0 ? 1 : 0.06; oc[i] = s.col[i] * k; oc[i + 1] = s.col[i + 1] * k; oc[i + 2] = s.col[i + 2] * k; }
+        }
+      };
+      dyn(0, s.pos, null); return dyn;
+    } },
+    flow(0.1, { speed: 0.06, color: [0.8, 0.7, 1], b0: 0.2, b1: 0.8, fn: (u, a, b, t, p) => { const q = a * TAU + t * 0.1, r = 1 + b * 4; p[0] = Math.cos(q) * r; p[1] = -2 + u * 5.5; p[2] = Math.sin(q) * r * 0.6; } }),
+    stat(0.08, (p, c) => { const a = rnd(0, TAU), r = Math.sqrt(Math.random()) * 4; p[0] = Math.cos(a) * r; p[1] = -2.02; p[2] = Math.sin(a) * r * 0.6; setc(c, [1, 0.75, 0.4], rnd(0.05, 0.25)); }),
+  ]);
+}
+function buildFutureCity() {
+  const G = -1.3, T = [[0, -1.2, 3.6, 0.45], [-1.6, -0.6, 2.6, 0.35], [1.7, -0.8, 2.9, 0.38], [-3, -1.8, 2.0, 0.3], [3.1, -2.0, 2.3, 0.32], [-0.9, -2.6, 2.2, 0.3], [0.9, -2.9, 2.5, 0.3], [-2.4, 0.4, 1.4, 0.25], [2.5, 0.3, 1.6, 0.26], [-4, -0.4, 1.2, 0.22], [4.1, -0.6, 1.3, 0.22]];
+  const wts = T.map(x => x[2] * x[3]), wt = wts.reduce((a, b) => a + b, 0);
+  const pick = () => { let x = Math.random() * wt; for (let k = 0; k < T.length; k++) { if (x < wts[k]) return T[k]; x -= wts[k]; } return T[0]; };
+  return compose([
+    stat(0.42, (p, c) => { const [tx, tz, h, r] = pick(), v = Math.random(), hy = v * h, a = rnd(0, TAU), terr = (hy / 0.35) % 1 < 0.08, rr = r * (1 - 0.35 * v) * (terr ? 1.18 : 1), tw = a + v * 1.4; p[0] = tx + Math.cos(tw) * rr; p[1] = G + hy; p[2] = tz + Math.sin(tw) * rr; if (terr) setc(c, [0.3, 1, 0.5], rnd(0.5, 0.9)); else { const win = (hy * 9) % 1 < 0.5; setc(c, win ? [0.75, 0.9, 1] : [0.35, 0.45, 0.7], win ? rnd(0.6, 1) : rnd(0.2, 0.4)); } }),
+    stat(0.03, (p, c) => { const [tx, tz, h] = pick(); p[0] = tx; p[1] = G + h + Math.random() * 0.5; p[2] = tz; setc(c, [1, 0.9, 0.7], rnd(0.8, 1.3)); }),
+    flow(0.2, { speed: 0, fn: (u, a, b, t, p) => { const l = Math.floor(b * 4), vid = Math.floor(a * 30), R = 2.2 + l * 0.7, dir = l % 2 ? 1 : -1, q = vid / 30 * TAU + t * (0.25 + l * 0.05) * dir - dir * u * 0.1; p[0] = Math.cos(q) * R; p[1] = G + 1.2 + l * 0.55 + Math.sin(q * 2 + l) * 0.08; p[2] = Math.sin(q) * R * 0.55 - 1.2; }, col: (u, a, b, c) => setc(c, Math.floor(b * 4) % 2 ? [1, 0.55, 0.35] : [0.4, 0.9, 1], (1 - u) * 1.3) }),
+    stat(0.05, (p, c) => { const a = rnd(0, TAU); p[0] = Math.cos(a) * 4.6; p[1] = G + 0.35; p[2] = Math.sin(a) * 2.6 - 1.2; setc(c, [0.6, 0.7, 1], rnd(0.3, 0.6)); }),
+    flow(0.04, { speed: 0, fn: (u, a, b, t, p) => { const q = u * TAU * 0.15 + t * 0.35; p[0] = Math.cos(q) * 4.6; p[1] = G + 0.4 + (b - 0.5) * 0.05; p[2] = Math.sin(q) * 2.6 - 1.2; }, col: (u, a, b, c) => setc(c, [1, 0.95, 0.8], 1.3) }),
+    stat(0.16, (p, c) => { p[0] = rnd(-6, 6); p[2] = rnd(-5, 2); p[1] = G + (Math.random() < 0.5 ? Math.random() * 0.12 : 0); setc(c, Math.random() < 0.6 ? [0.3, 0.9, 0.4] : [0.3, 0.5, 0.9], rnd(0.1, 0.35)); }),
+    flow(0.05, { speed: 0.03, color: [0.6, 0.8, 1], b0: 0.1, b1: 0.4, fn: (u, a, b, t, p) => { p[0] = -7 + u * 14; p[1] = G + 2.8 + b * 1.5; p[2] = (a - 0.5) * 8 - 3; } }),
+  ]);
+}
+function buildHealing() {
+  const G = -1.4, hh = (x, z) => 0.25 * Math.sin(x * 0.6) + 0.2 * Math.cos(z * 0.9 + x * 0.3), tur = [[-3, -2.2], [-1.6, -2.9], [0.2, -3.3], [2.0, -2.8], [3.5, -2.1]];
+  return compose([
+    stat(0.2, (p, c) => { p[0] = rnd(-6, 6); p[2] = rnd(-5, 2); p[1] = G + hh(p[0], p[2]); setc(c, [0.35, 0.8, 0.35], rnd(0.15, 0.4)); }),
+    stat(0.08, (p, c) => { const [x, z] = tur[Math.floor(Math.random() * tur.length)], yb = G + hh(x, z), q = Math.random(); if (q < 0.85) { const a = rnd(0, TAU), r = 0.045 * (1 - 0.4 * q); p[0] = x + Math.cos(a) * r; p[1] = yb + q / 0.85 * 2.2; p[2] = z + Math.sin(a) * r; } else { const v = unitVec(); p[0] = x + v[0] * 0.12; p[1] = yb + 2.2 + v[1] * 0.08; p[2] = z + 0.05 + v[2] * 0.08; } setc(c, [0.95, 0.97, 1], rnd(0.5, 0.9)); }),
+    ...tur.map(([x, z], k) => rigid(0.035, { c: [x, G + hh(x, z) + 2.2, z + 0.14], rotZ: t => t * 1.1 + k, init: (p, c) => { const bl = Math.floor(Math.random() * 3) * TAU / 3, r = Math.random() * 1.1, off = (Math.random() - 0.5) * 0.1 * (1 - r * 0.7); p[0] = Math.cos(bl) * r - Math.sin(bl) * off; p[1] = Math.sin(bl) * r + Math.cos(bl) * off; p[2] = 0; setc(c, [0.95, 0.97, 1], rnd(0.6, 1)); } })),
+    stat(0.16, (p, c) => { const row = Math.floor(Math.random() * 7), x = rnd(-4.2, -0.6), v = Math.random(); p[0] = x; p[2] = 0.2 + row * 0.3 + v * 0.2; p[1] = G + hh(x, p[2]) + 0.12 + v * 0.12; const grid = ((x * 6 + 60) % 1 < 0.1 || v < 0.06 || v > 0.94) ? 1.5 : 1; setc(c, [0.25, 0.45, 1], rnd(0.35, 0.6) * grid); }),
+    stat(0.2, (p, c) => { const k = Math.floor(Math.random() * 60), tx = 0.6 + (Math.sin(k * 12.9) * 0.5 + 0.5) * 4.2, tz = -1.2 + (Math.sin(k * 7.3) * 0.5 + 0.5) * 3, h = 0.5 + (k % 5) * 0.1, v = Math.random(), a = rnd(0, TAU), r = 0.22 * (1 - v); p[0] = tx + Math.cos(a) * r; p[1] = G + hh(tx, tz) + 0.15 + v * h; p[2] = tz + Math.sin(a) * r; setc(c, mix([0.2, 0.7, 0.3], [0.4, 0.9, 0.35], (k % 7) / 7), rnd(0.4, 0.85)); }),
+    sphere(0.06, { c: [2.8, 2.4, -5], r: 0.7, solid: true, color: [1, 0.9, 0.6], b0: 0.8, b1: 1.2 }),
+    disk(0.05, { c: [2.8, 2.4, -5.1], r0: 0.7, r1: 2, pow: 1.6, thick: 0.001, vertical: true, color: [1, 0.85, 0.5], b0: 0.03, b1: 0.15 }),
+    flow(0.04, { speed: 0, color: [0.9, 0.95, 1], b0: 0.4, b1: 0.8, fn: (u, a, b, t, p) => { const i = Math.floor(b * 9), X = -6 + (t * 0.45) % 12, row = Math.abs(i - 4); p[0] = X - row * 0.25 + (a - 0.5) * 0.06; p[1] = 1.8 + row * 0.12 + Math.sin(t * 8 + i) * 0.04 * (a > 0.5 ? 1 : -1); p[2] = -1 + (i - 4) * 0.12; } }),
+  ]);
+}
+function buildDNA() {
+  const RUNGS = 40, pal = [[0.3, 0.9, 1], [1, 0.45, 0.6], [1, 0.8, 0.3], [0.5, 1, 0.5]];
+  const q = (y, t) => y * 2 + t * 0.6, yOf = i => -2.3 + (i + 0.5) / RUNGS * 4.6, rep = t => Math.floor(((t * 0.08) % 1) * RUNGS);
+  return compose([
+    flow(0.3, { speed: 0, fn: (u, a, b, t, p) => { const y = -2.3 + a * 4.6, r = 0.8 + ((b * 2) % 1 - 0.5) * 0.1, ang = q(y, t) + (b < 0.5 ? 0 : Math.PI); p[0] = Math.cos(ang) * r; p[1] = y + ((b * 7) % 1 - 0.5) * 0.04; p[2] = Math.sin(ang) * r; }, col: (u, a, b, c) => setc(c, b < 0.5 ? [0.4, 0.8, 1] : [0.75, 0.5, 1], 0.9) }),
+    flow(0.25, { speed: 0, fn: (u, a, b, t, p) => { const y = yOf(Math.floor(a * RUNGS)), ang = q(y, t), x = Math.cos(ang) * 0.8, z = Math.sin(ang) * 0.8; p[0] = x - 2 * x * b; p[1] = y; p[2] = z - 2 * z * b; }, col: (u, a, b, c, t) => { const i = Math.floor(a * RUNGS), fix = i === rep(t); setc(c, fix ? [1, 0.85, 0.4] : pal[(i * 7 + (b < 0.5 ? 0 : 1)) % 4], fix ? 2 : 0.55); } }),
+    flow(0.14, { speed: 0, fn: (u, a, b, t, p) => { const k = Math.floor(b * 10); let x, y, z; if (k === 0) { const y0 = yOf(rep(t)), ang = q(y0, t) + Math.PI / 2; x = Math.cos(ang) * 1.05; y = y0; z = Math.sin(ang) * 1.05; } else { const an = t * (0.5 + k * 0.05) + k, R = 1.5 + (k % 3) * 0.25; x = Math.cos(an) * R; y = Math.sin(t * 0.3 + k * 1.7) * 1.8; z = Math.sin(an) * R; } p[0] = x + (a - 0.5) * 0.14; p[1] = y + (u - 0.5) * 0.14; p[2] = z + ((a * 13) % 1 - 0.5) * 0.14; }, col: (u, a, b, c) => setc(c, Math.floor(b * 10) === 0 ? [1, 0.9, 0.5] : [0.8, 0.9, 1], 1.1) }),
+    flow(0.16, { speed: 0.02, color: [1, 0.35, 0.4], b0: 0.05, b1: 0.25, fn: (u, a, b, t, p) => { p[0] = (a - 0.5) * 10; p[1] = -3 + u * 6; p[2] = (b - 0.5) * 5 - 1.5; } }),
+    stat(0.15, (p, c) => { const v = unitVec(), r = rnd(1.1, 2.4); p[0] = v[0] * r; p[1] = rnd(-2.4, 2.4); p[2] = v[2] * r; setc(c, [0.5, 0.6, 1], rnd(0.03, 0.12)); }),
+  ]);
+}
+const CITIES = [[19,73],[28.6,77.2],[35.7,139.7],[39.9,116.4],[31.2,121.5],[37.6,127],[1.35,103.8],[-33.9,151],[25.2,55.3],[30,31.2],[6.5,3.4],[-1.3,36.8],[-26.2,28],[51.5,-0.1],[48.8,2.3],[52.5,13.4],[55.8,37.6],[41,29],[40.7,-74],[37.8,-122.4],[34,-118.2],[43.7,-79.4],[19.4,-99.1],[-23.5,-46.6],[-34.6,-58.4],[-12,-77],[64,-22],[13.7,100.5],[-6.2,106.8],[14.6,121]];
+const GLOBAL_NET = CITIES.flatMap((c, i) => [1, 5, 11].map(o => [c, CITIES[(i + o) % CITIES.length]]));
+
+/* ================= SHAPES: AMONG THE STARS ================= */
+function buildDyson() {
+  return compose([
+    sphere(0.12, { c: [0, 0, 0], r: 0.8, solid: true, color: [1, 0.8, 0.4], b0: 0.9, b1: 1.4, pulse: t => 1 + 0.02 * Math.sin(t * 2.5) }),
+    sphere(0.06, { c: [0, 0, 0], r: 0.8, in: 1.05, out: 1.5, color: [1, 0.55, 0.2], b0: 0.05, b1: 0.25, spin: 0.2 }),
+    { w: 0.55, make(st, n, s) {
+      const RK = 8, K = new Uint8Array(n), A = new Float32Array(n), R = new Float32Array(n), tilts = [...Array(RK)].map((_, k) => [k * 0.39, k * 0.78 + 0.3]);
+      for (let j = 0; j < n; j++) { const k = j % RK; K[j] = k; A[j] = rnd(0, TAU); R[j] = 1.9 + k * 0.28 + gauss() * 0.03; const c = Math.random() < 0.6 ? [1, 0.8, 0.4] : [0.75, 0.85, 1], b = rnd(0.5, 1); set3(s.col, st + j, c[0] * b, c[1] * b, c[2] * b); }
+      const dyn = (t, o) => { for (let j = 0; j < n; j++) { const [ti, no] = tilts[K[j]], a = A[j] + t * 1.3 / Math.pow(R[j], 1.5), x = Math.cos(a) * R[j], z0 = Math.sin(a) * R[j], y = z0 * Math.sin(ti), z = z0 * Math.cos(ti), cn = Math.cos(no), sn = Math.sin(no); set3(o, st + j, x * cn + z * sn, y, -x * sn + z * cn); } };
+      dyn(0, s.pos); return dyn;
+    } },
+    flow(0.08, { speed: 0.5, vary: 0.2, fn: (u, a, b, t, p) => { p[0] = 4.6 * u + (a - 0.5) * 0.08; p[1] = 1.3 * u + (b - 0.5) * 0.08; p[2] = -2.5 * u; }, col: (u, a, b, c) => setc(c, [1, 0.85, 0.5], 0.9) }),
+    sphere(0.04, { c: [4.6, 1.3, -2.5], r: 0.3, colorFn: earthColor, spin: 0.2, b0: 0.6, b1: 1 }),
+    stat(0.15, (p, c) => { const v = unitVec(), r = rnd(10, 16); p[0] = v[0] * r; p[1] = v[1] * r; p[2] = v[2] * r; setc(c, [0.8, 0.85, 1], rnd(0.2, 0.6)); }),
+  ]);
+}
+function buildMoonBase() {
+  const G = -1.3, craters = [[-2.8, -1.5, 0.9], [0.4, -2.6, 1.2], [2.9, -0.6, 0.6], [-0.9, 0.8, 0.45], [3.8, -3, 1.0], [-4.2, 0.5, 0.7]];
+  const mh = (x, z) => { let h = -0.012 * x * x - 0.005 * (z + 1.5) * (z + 1.5); for (const [cx, cz, r] of craters) { const d = Math.hypot(x - cx, z - cz); if (d < r) h -= (1 - (d / r) ** 2) * 0.22 * r; h += Math.exp(-(((d - r) / (0.18 * r)) ** 2)) * 0.1 * r; } return h + pnoise(x * 2, z * 2, 1) * 0.02; };
+  const seg = []; seg[3] = [1, 0.8, 0.4];
+  return compose([
+    stat(0.36, (p, c) => { p[0] = rnd(-6, 6); p[2] = rnd(-5, 2); const h = mh(p[0], p[2]); p[1] = G + h; setc(c, [0.78, 0.78, 0.85], rnd(0.2, 0.5) * (1 + h * 1.5)); }),
+    sphere(0.12, { c: [-1.8, G + mh(-1.8, -1.2), -1.2], r: 0.8, hemi: true, color: [0.6, 0.85, 1], b0: 0.25, b1: 0.7 }),
+    sphere(0.07, { c: [-0.5, G + mh(-0.5, -2.1), -2.1], r: 0.55, hemi: true, color: [0.6, 0.85, 1], b0: 0.25, b1: 0.7 }),
+    sphere(0.04, { c: [-1.8, G + mh(-1.8, -1.2), -1.2], r: 0.7, solid: true, hemi: true, color: [1, 0.8, 0.5], b0: 0.1, b1: 0.35 }),
+    figure(0.18, { rig: rigAstro, x: 1.0, s: 0.75, G: G - 0.05, speed: 1.6, color: [0.95, 0.95, 1], segColor: seg }),
+    stat(0.03, (p, c) => { if (Math.random() < 0.3) { p[0] = 1.9; p[1] = G + Math.random() * 1.3; p[2] = 0.2; setc(c, [0.8, 0.8, 0.8], 0.7); } else { const u = Math.random(), v = Math.random(); p[0] = 1.9 + u * 0.6; p[1] = G + 0.95 + v * 0.35; p[2] = 0.2; const band = v > 0.66 ? [1, 0.55, 0.15] : v > 0.33 ? [1, 1, 1] : [0.15, 0.7, 0.25]; const chakra = Math.hypot(u - 0.5, (v - 0.5) * 0.35 / 0.6) < 0.06; setc(c, chakra ? [0.1, 0.2, 0.8] : band, 0.9); } }),
+    sphere(0.14, { c: [2.6, 2.0, -4.5], r: 0.75, colorFn: earthColor, spin: 0.1, b0: 0.6, b1: 1 }),
+    stat(0.06, (p, c) => { p[0] = rnd(-8, 8); p[1] = rnd(0.3, 4.5); p[2] = rnd(-7, -5); setc(c, [0.8, 0.85, 1], rnd(0.2, 0.7)); }),
+  ]);
+}
+function buildMars() {
+  const G = -1.3, mh = (x, z) => 0.12 * Math.sin(x * 0.8 + z * 0.5) + 0.05 * Math.sin(x * 2.3 - z * 1.7) + Math.max(0, -(z + 3)) * 0.6 * (0.5 + 0.5 * Math.sin(x * 0.7));
+  const RX = 1.8, RZ = -0.6, RG = G + mh(RX, RZ);
+  const ry = t => { const p = (t % 11) / 11; return p < 0.35 ? 0 : Math.pow((p - 0.35) / 0.65, 2.2) * 10; };
+  const th = t => { const p = (t % 11) / 11; return p < 0.25 ? 0.15 : p < 0.35 ? 0.6 : 1; };
+  const domes = [[-2.2, -1.0, 0.9], [-0.6, -1.8, 0.6], [-3.2, -2.4, 0.55]];
+  return compose([
+    stat(0.3, (p, c) => { p[0] = rnd(-7, 7); p[2] = rnd(-6, 2); p[1] = G + mh(p[0], p[2]); setc(c, [0.95, 0.42, 0.2], rnd(0.2, 0.5)); }),
+    ...domes.map(([x, z, r]) => sphere(0.06 * r + 0.02, { c: [x, G + mh(x, z), z], r, hemi: true, color: [0.95, 0.85, 0.65], b0: 0.3, b1: 0.8 })),
+    ...domes.map(([x, z, r]) => sphere(0.02, { c: [x, G + mh(x, z), z], r: r * 0.8, hemi: true, solid: true, color: [0.3, 0.9, 0.4], b0: 0.1, b1: 0.4 })),
+    rigid(0.1, { c: [RX, RG, RZ], move: t => [0, ry(t), 0], init: (p, c) => {
+      const q = Math.random();
+      if (q < 0.72) { const y = rnd(0.35, 2.4), a = rnd(0, TAU); p[0] = Math.cos(a) * 0.2; p[1] = y; p[2] = Math.sin(a) * 0.2; setc(c, [0.85, 0.88, 0.95], rnd(0.5, 0.9) * (0.7 + 0.3 * Math.cos(a))); }
+      else if (q < 0.86) { const v = Math.sqrt(Math.random()), a = rnd(0, TAU), r = 0.2 * Math.pow(1 - v, 0.8); p[0] = Math.cos(a) * r; p[1] = 2.4 + v * 0.55; p[2] = Math.sin(a) * r; setc(c, [0.9, 0.92, 1], rnd(0.6, 1)); }
+      else { const f = Math.floor(Math.random() * 3) * TAU / 3, d = rnd(0.2, 0.55); p[0] = Math.cos(f) * d; p[1] = 0.35 + Math.random() * (0.6 - d) * 1.4; p[2] = Math.sin(f) * d; setc(c, [0.6, 0.65, 0.75], rnd(0.4, 0.7)); }
+    } }),
+    flow(0.1, { speed: 2.2, fn: (u, a, b, t, p) => { const T = th(t), sp = 0.1 + u * 0.5 * T; p[0] = RX + (a - 0.5) * sp * 2; p[1] = Math.max(RG, RG + 0.35 + ry(t) - u * (0.3 + 2.2 * T)); p[2] = RZ + (b - 0.5) * sp * 2; }, col: (u, a, b, c, t) => setc(c, u < 0.2 ? [0.8, 0.9, 1] : mix([1, 0.7, 0.3], [0.8, 0.25, 0.1], (u - 0.2) / 0.8), (1 - u) * 1.4 * (0.3 + th(t))) }),
+    flow(0.07, { speed: 0.5, fn: (u, a, b, t, p) => { const r = 0.3 + u * 3.2, q = a * TAU; p[0] = RX + Math.cos(q) * r; p[1] = RG + 0.05 + u * 0.4 * b; p[2] = RZ + Math.sin(q) * r * 0.6; }, col: (u, a, b, c, t) => setc(c, [0.9, 0.5, 0.3], (ry(t) < 2.5 ? 1 : 0) * th(t) * (1 - u) * 0.5) }),
+    sphere(0.02, { c: [-2.8, 2.1, -4], r: 0.2, color: [0.6, 0.55, 0.5], b0: 0.5, b1: 0.9, spin: 0.3 }),
+    flow(0.06, { speed: 0.02, color: [1, 0.6, 0.45], b0: 0.05, b1: 0.25, fn: (u, a, b, t, p) => { p[0] = -7 + u * 14; p[1] = G + b * 4; p[2] = (a - 0.5) * 8 - 2; } }),
+  ]);
+}
+function buildJupiter() {
+  const grs = ll2v(-22, 30);
+  const jup = v => { const n = pnoise(v[0] * 3, v[1] * 3, v[2] * 3), band = Math.sin(v[1] * 16 + n * 1.2); if (v[0] * grs[0] + v[1] * grs[1] + v[2] * grs[2] > 0.975) return [0.95, 0.35, 0.2]; return band > 0 ? mix([0.95, 0.88, 0.75], [0.9, 0.75, 0.55], band) : mix([0.8, 0.55, 0.38], [0.65, 0.42, 0.3], -band); };
+  const moons = [[2.7, 0.12, [1, 0.85, 0.3]], [3.3, 0.11, [0.9, 0.92, 1]], [4.0, 0.19, [0.7, 0.65, 0.6]], [4.8, 0.17, [0.5, 0.45, 0.42]]];
+  return compose([
+    sphere(0.5, { c: [0, 0, 0], r: 1.8, colorFn: jup, spin: 0.18, b0: 0.6, b1: 1 }),
+    sphere(0.05, { c: [0, 0, 0], r: 1.8, in: 1.02, out: 1.1, color: [1, 0.85, 0.65], b0: 0.05, b1: 0.2 }),
+    disk(0.06, { r0: 2.05, r1: 2.35, thick: 0.005, color: [0.9, 0.8, 0.7], b0: 0.1, b1: 0.3, sp: () => 0.3 }),
+    ...moons.map(([R, r, c]) => sphere(0.035, { c: [0, 0, 0], r, color: c, b0: 0.7, b1: 1.15, spin: 0.5, orbit: { R, sp: 1.6 / Math.pow(R, 1.5), ph: rnd(0, TAU), tilt: 0.06 } })),
+    ...moons.map(([R]) => disk(0.015, { r0: R, r1: R, thick: 0.004, color: [0.5, 0.6, 0.9], b0: 0.08, b1: 0.22 })),
+    stat(0.08, (p, c) => { const v = unitVec(), r = rnd(9, 14); p[0] = v[0] * r; p[1] = v[1] * r; p[2] = v[2] * r - 3; setc(c, [0.8, 0.85, 1], rnd(0.2, 0.7)); }),
+  ]);
+}
+function buildHabitat() {
+  return compose([
+    rigid(0.42, { rotX: t => t * 0.25, init: (p, c) => {
+      const q = Math.random();
+      if (q < 0.78) { const x = rnd(-2.3, 2.3), a = rnd(0, TAU), sec = Math.floor(a / TAU * 6) % 6; p[0] = x; p[1] = Math.cos(a); p[2] = Math.sin(a); if (sec % 2) { const rib = (x * 4) % 1 < 0.12 ? 1.3 : 1; setc(c, [0.6, 0.85, 1], rnd(0.4, 0.8) * rib); } else { const city = Math.random() < 0.12; setc(c, city ? [1, 0.8, 0.45] : mix([0.2, 0.6, 0.3], [0.3, 0.5, 0.8], Math.random() * 0.4), city ? rnd(0.8, 1.2) : rnd(0.25, 0.55)); } }
+      else if (q < 0.93) { const sx = Math.random() < 0.5 ? -2.3 : 2.3, a = rnd(0, TAU), r = Math.random() < 0.4 ? rnd(0.95, 1.05) : Math.sqrt(Math.random()); p[0] = sx; p[1] = Math.cos(a) * r; p[2] = Math.sin(a) * r; setc(c, [0.7, 0.8, 0.95], r > 0.95 ? rnd(0.8, 1.2) : rnd(0.2, 0.45)); }
+      else { const a = rnd(0, TAU); p[0] = rnd(2.3, 3.1); p[1] = Math.cos(a) * 0.12; p[2] = Math.sin(a) * 0.12; setc(c, [0.8, 0.85, 1], rnd(0.5, 0.9)); }
+    } }),
+    stat(0.1, (p, c) => { p[0] = rnd(-4.4, -2.6); p[1] = 0; p[2] = rnd(-1.4, 1.4); const grid = ((p[0] * 5) % 1 < 0.12 || (p[2] * 5 + 10) % 1 < 0.12) ? 1.4 : 1; setc(c, [0.3, 0.4, 0.95], rnd(0.25, 0.5) * grid); }),
+    sphere(0.3, { c: [0, -9.5, -4], r: 8, hemi: true, colorFn: earthColor, spin: 0.02, b0: 0.45, b1: 0.9 }),
+    sphere(0.05, { c: [0, -9.5, -4], r: 8, hemi: true, in: 1.01, out: 1.03, color: [0.4, 0.7, 1], b0: 0.2, b1: 0.5 }),
+    flow(0.03, { speed: 0.08, vary: 0.2, fn: (u, a, b, t, p) => { p[0] = 5 - u * 1.9 + (a - 0.5) * 0.08; p[1] = 1.8 - u * 1.8 + (b - 0.5) * 0.08; p[2] = 2 - u * 2; }, col: (u, a, b, c) => setc(c, a < 0.5 ? [1, 0.4, 0.3] : [0.6, 0.9, 1], 1.1) }),
+    stat(0.1, (p, c) => { const v = unitVec(), r = rnd(9, 14); p[0] = v[0] * r; p[1] = Math.abs(v[1]) * r; p[2] = v[2] * r - 3; setc(c, [0.8, 0.85, 1], rnd(0.2, 0.7)); }),
+  ]);
+}
+function buildInterstellar() {
+  return compose([
+    flow(0.45, { speed: 0.3, vary: 0.8, fn: (u, a, b, t, p) => { const q = a * TAU, r = 1.2 + b * 9; p[0] = Math.cos(q) * r; p[1] = Math.sin(q) * r * 0.7; p[2] = -45 + u * 52; }, col: (u, a, b, c) => setc(c, b < 0.15 ? [1, 0.8, 0.6] : [0.7, 0.8, 1], u * u * 1.4) }),
+    rigid(0.22, { move: t => [0, Math.sin(t * 0.8) * 0.05, 0], init: (p, c) => {
+      const q = Math.random();
+      if (q < 0.2) { const a = rnd(0, TAU); p[0] = Math.cos(a) * 0.08; p[1] = Math.sin(a) * 0.08; p[2] = rnd(-2.6, 1.2); setc(c, [0.75, 0.85, 1], rnd(0.5, 0.9)); }
+      else if (q < 0.28) { const v = unitVec(); p[0] = v[0] * 0.22; p[1] = v[1] * 0.22; p[2] = 1.25 + v[2] * 0.22; setc(c, [0.4, 0.7, 1], rnd(1, 1.4)); }
+      else if (q < 0.9) { const a = rnd(0, TAU), rim = Math.random() < 0.15, r = rim ? rnd(1.75, 1.82) : Math.sqrt(Math.random()) * 1.75; p[0] = Math.cos(a) * r; p[1] = Math.sin(a) * r; p[2] = -3.4; setc(c, mix([0.6, 0.45, 1], [0.35, 0.9, 1], 0.5 + 0.5 * Math.cos(a * 2 + r)), rim ? rnd(0.9, 1.3) : rnd(0.15, 0.45)); }
+      else { const k = Math.floor(Math.random() * 6) * TAU / 6, u = Math.random(); p[0] = Math.cos(k) * 1.75 * (1 - u); p[1] = Math.sin(k) * 1.75 * (1 - u); p[2] = -3.4 + u * 0.8; setc(c, [0.7, 0.8, 1], rnd(0.3, 0.6)); }
+    } }),
+    rigid(0.08, { c: [0, 0, -0.4], rotZ: t => t * 0.4, init: (p, c) => { const a = rnd(0, TAU), b = rnd(0, TAU), r = 0.9 + Math.cos(b) * 0.1; p[0] = Math.cos(a) * r; p[1] = Math.sin(a) * r; p[2] = Math.sin(b) * 0.1; setc(c, Math.random() < 0.15 ? [1, 0.85, 0.5] : [0.75, 0.85, 1], rnd(0.5, 1)); } }),
+    flow(0.1, { speed: 1.5, fn: (u, a, b, t, p) => { p[0] = (a - 0.5) * 0.3 * (1 + u); p[1] = (b - 0.5) * 0.3 * (1 + u); p[2] = 1.4 + u * 3; }, col: (u, a, b, c) => setc(c, [0.4, 0.7, 1], (1 - u) * 1.3) }),
+    sphere(0.03, { c: [0, 0.3, -40], r: 0.8, solid: true, color: [1, 0.9, 0.7], b0: 1, b1: 1.5, pulse: t => 1 + 0.1 * Math.sin(t * 2) }),
+    stat(0.12, (p, c) => { const v = unitVec(), r = rnd(20, 40); p[0] = v[0] * r; p[1] = v[1] * r; p[2] = v[2] * r; setc(c, [0.8, 0.85, 1], rnd(0.15, 0.5)); }),
+  ]);
+}
+
+/* ================= STORY ================= */
+const CHAPTERS = ['Cosmos', 'Rise of Humanity', 'A Human Life', 'Age of Intelligence', 'Among the Stars'], ROMAN = ['I', 'II', 'III', 'IV', 'V'];
+const figColor = p => mix([0.95, 0.55, 0.28], [0.75, 0.88, 1.0], p);
+const ya = v => ({ m: 'ya', v }), age = v => ({ m: 'age', v }), ce = v => ({ m: 'ce', v }), txt = (n, u) => ({ m: 'txt', n, u });
+const ERAS = [
+  // ---------- I · COSMOS ----------
+  { ch: 0, title: 'The Big Bang', short: 'Big Bang', sub: 'Everything begins', ctr: ya(13.8e9), accent: '#ffd9a8', bg: 0x07040a, gain: 0.8, cam: [0, 1.2, 8.5], tg: [0, 0, 0],
+    desc: 'In a single instant, all of space, time and energy burst out of an unimaginably hot, dense point. Within three minutes the first atomic nuclei had formed.',
+    facts: ['13.8 billion years ago', 'Cosmic inflation · 10⁻³² seconds', 'First atoms · 380,000 years later'], build: buildBigBang },
+  { ch: 0, title: 'Stardust', short: 'First Stars', sub: 'Stars & galaxies ignite', ctr: ya(13.5e9), accent: '#b9a8ff', bg: 0x05040c, gain: 0.85, cam: [0, 3.4, 6.2], tg: [0, 0, 0],
+    desc: 'The first stars ignite and gather into galaxies. Inside them hydrogen fuses into carbon, oxygen and iron, then exploding stars scatter it across space. Every atom in your body was forged this way.',
+    facts: ['First galaxies · ~13.5 bya', 'Milky Way · 100–400 billion stars', 'You are made of star-stuff'], build: buildGalaxy },
+  { ch: 0, title: 'Sun & Earth', short: 'Solar System', sub: 'A star is born, a world forms', ctr: ya(4.6e9), accent: '#ffc46b', bg: 0x06040a, gain: 0.8, cam: [0, 3.6, 6.4], tg: [0, 0, 0],
+    desc: 'A cloud of gas and stellar ash collapses. The Sun ignites at the centre and the leftover dust clumps into planets. The third one from the Sun has liquid water.',
+    facts: ['Sun ignites · 4.6 bya', 'Earth forms · 4.54 bya', 'Moon forms after a giant impact'], build: buildSolar },
+  { ch: 0, title: 'First Life', short: 'First Life', sub: 'Cells in the primordial ocean', ctr: ya(3.8e9), accent: '#5fffd0', bg: 0x020a0c, gain: 0.8, cam: [0, 0.4, 6.5], tg: [0, 0, 0],
+    desc: 'Life begins in the dark oceans, perhaps at hydrothermal vents: self-copying molecules wrapped in membranes. Single cells divide, and they will have the planet to themselves for 3 billion years.',
+    facts: ['First cells · ~3.8 bya', 'Photosynthesis · ~3.4 bya', 'Animals · ~600 mya'], build: buildFirstLife },
+  // ---------- II · RISE OF HUMANITY ----------
+  { ch: 1, title: 'The Cradle', short: 'Cradle', sub: 'Africa · Sahelanthropus', ctr: ya(7e6), accent: '#ffc46b', bg: 0x020611, gain: 0.8, cam: [0, 0.4, 5.6], tg: [0, 0, 0],
+    desc: 'In the forests of Africa, our lineage splits from the ancestors of chimpanzees. The climate is drying, forests are shrinking, and open savannas are spreading.',
+    facts: ['~98.8% DNA shared with chimps', 'Sahelanthropus tchadensis', 'Africa: cradle of humankind'], build: () => buildGlobe({ highlight: [2, 20] }) },
+  { ch: 1, title: 'First Steps', short: 'First Steps', sub: 'Australopithecus · “Lucy”', ctr: ya(3.2e6), accent: '#ffab5e', bg: 0x0a0604, gain: 0.55, cam: [0.6, 0.3, 5.0], tg: [0, 0, 0],
+    desc: 'Lucy walks upright on two legs but keeps a small, ape-sized brain. Our ancestors walked upright long before their brains grew large.',
+    facts: ['Brain ~450 cc', 'Height ~1.1 m', 'Laetoli footprints · 3.66 mya'],
+    build: () => buildFigures([{ p: 0.18, x: 0, s: 1.25, walk: true, speed: 2.8, color: figColor(0.1) }], { ground: { speed: 0.75 } }) },
+  { ch: 1, title: 'Mastery of Fire', short: 'Fire', sub: 'Homo erectus', ctr: ya(1e6), accent: '#ff7a2e', bg: 0x0c0503, gain: 0.6, cam: [0, 0.5, 5.8], tg: [0, 0, 0],
+    desc: 'Homo erectus tames fire. Cooked food frees up energy for a growing brain, nights become safer, and people begin to gather around the flames to tell stories.',
+    facts: ['Brain ~900 cc', 'First humans to leave Africa', 'Acheulean hand-axes'],
+    build: () => buildFigures([{ p: 0.62, x: -1.1, s: 1.15, walk: false, color: [0.95, 0.62, 0.42] }], { ground: { speed: 0 }, fire: { x: 0.9 } }) },
+  { ch: 1, title: 'Homo Sapiens', short: 'Sapiens', sub: 'The march of our lineage', ctr: ya(3e5), accent: '#9fd4ff', bg: 0x07060a, gain: 0.5, cam: [0, 0.3, 7.4], tg: [-0.4, 0, 0],
+    desc: 'Anatomically modern humans appear in Africa. Over 7 million years the brain has tripled in size, the spine has straightened, and the hands have been freed to make things.',
+    facts: ['Brain ~1,350 cc', 'Jebel Irhoud, Morocco · 315,000 ya', 'Cousins: Neanderthals & Denisovans'],
+    build: () => buildFigures([0, 0.25, 0.5, 0.75, 1].map((p, k) => ({ p, x: -3.4 + k * 1.45, s: 0.85 + k * 0.05, walk: true, off: k * 0.7, speed: 3.0, color: figColor(p) })), { ground: { speed: 0.8 } }) },
+  { ch: 1, title: 'Out of Africa', short: 'Migration', sub: 'The great dispersal', ctr: ya(7e4), accent: '#ffd27a', bg: 0x020611, gain: 0.8, cam: [0, 0.8, 5.8], tg: [0, 0, 0],
+    desc: 'Small bands cross the Red Sea and spread across every continent: Australia by 65,000 years ago, Europe by 45,000 and the Americas by at least 20,000.',
+    facts: ['Australia · ~65,000 ya', 'Europe · ~45,000 ya', 'Americas · ~20,000 ya'], build: () => buildGlobe({ arcs: MIGRATION, spin: t => -1.0 + Math.sin(t * 0.12) * 1.7 }) },
+  { ch: 1, title: 'The Mind Awakens', short: 'Art', sub: 'The cognitive revolution', ctr: ya(4e4), accent: '#ff6a3d', bg: 0x0b0504, gain: 0.75, cam: [0, 0, 6.4], tg: [0, 0, 0],
+    desc: 'People blow red ochre around their hands onto cave walls in Sulawesi, Spain and France. Symbols, art, music and myth appear. For the first time, we imagine.',
+    facts: ['Sulawesi cave art · 51,200 ya', 'Bone flutes · ~40,000 ya', 'Language & abstract thought'], build: buildCave },
+  { ch: 1, title: 'Agriculture', short: 'Farming', sub: 'The Fertile Crescent', ctr: ya(12000), accent: '#ffd35c', bg: 0x0a0703, gain: 0.7, cam: [0, 0.9, 6.2], tg: [0, -0.1, -0.6],
+    desc: 'People plant wild wheat and barley. Nomads become farmers, farms become villages, and villages grow into the first towns. Surplus food changes everything.',
+    facts: ['Göbekli Tepe · ~11,600 ya', 'Wheat domesticated · ~10,500 ya', 'World population booms'], build: buildWheat },
+  { ch: 1, title: 'Civilization', short: 'Civilization', sub: 'Writing · Cities · Empires', ctr: ya(4586), accent: '#f5c37a', bg: 0x0b0704, gain: 0.7, cam: [0, 0.7, 6.6], tg: [0, -0.2, -0.6],
+    desc: 'Writing, cities, laws and monuments. Sumer invents cuneiform and Egypt builds the Great Pyramid, which stays the tallest structure on Earth for 3,800 years.',
+    facts: ['Wheel · ~3500 BCE', 'Cuneiform writing · ~3200 BCE', 'Great Pyramid · ~2560 BCE'], build: buildPyramids },
+  { ch: 1, title: 'Industrial Age', short: 'Industry', sub: 'Steam · Steel · Speed', ctr: ya(266), accent: '#ff9a4a', bg: 0x0a0604, gain: 0.7, cam: [0, 0, 6.4], tg: [0.2, 0.2, 0],
+    desc: 'Coal and steam take over from muscle. Factories, railways and cities multiply, and the world population grows from 1 billion to 8 billion in just two centuries.',
+    facts: ['Watt steam engine · 1776', 'First public railway · 1825', '1 billion humans · 1804'], build: buildGears },
+  { ch: 1, title: 'Digital Age', short: 'Digital', sub: 'Silicon · Networks · Light', ctr: ya(57), accent: '#5fe3ff', bg: 0x02060c, gain: 0.75, cam: [0, 2.4, 6.8], tg: [0, -0.4, -1],
+    desc: 'The Moon landing, the microchip and the internet. Humanity connects the whole planet into one network of light.',
+    facts: ['Apollo 11 · 1969', 'World Wide Web · 1991', 'Smartphone era · 2007'], build: buildCity },
+  { ch: 1, title: 'Intelligence', short: 'AI', sub: 'You are here', ctr: ya(0), accent: '#c79bff', bg: 0x06030d, gain: 0.8, cam: [0, 0.4, 7], tg: [0, 0, 0],
+    desc: 'We have begun to build minds. Machines that learn, reason and create are becoming humanity\'s newest partner. But every one of us still lives the oldest story of all…',
+    facts: ['8.2 billion humans', 'Minds built from mathematics', 'Next: one human life'], build: buildNeural },
+  // ---------- III · A HUMAN LIFE ----------
+  { ch: 2, title: 'Conception', short: 'Conception', sub: 'One in 250 million', ctr: txt('Day 1', 'conception'), accent: '#ffb3a8', bg: 0x0c0407, gain: 0.8, cam: [-0.5, 0.5, 6.5], tg: [0, 0, 0],
+    desc: 'Out of roughly 250 million sperm, only one reaches the egg. In that moment a completely new genome is created, one that has never existed before and never will again.',
+    facts: ['~250 million sperm, 1 winner', 'The egg: largest human cell', '46 chromosomes: 23 + 23'], build: buildConception },
+  { ch: 2, title: 'In the Womb', short: 'Womb', sub: 'Nine months of becoming', ctr: txt('Week 24', 'in the womb'), accent: '#ff8fa0', bg: 0x0d0306, gain: 0.6, cam: [0, 0.2, 5.6], tg: [0.1, 0, 0],
+    desc: 'The heart starts beating in week 6. By week 24 the baby can hear its mother\'s voice, suck its thumb and even dream.',
+    facts: ['Heartbeat begins · week 6', 'Hears sound · ~week 18', 'Birth · ~40 weeks'], build: buildWomb },
+  { ch: 2, title: 'First Breath', short: 'Birth', sub: 'Birth', ctr: txt('Age 0', 'first breath'), accent: '#ffe0a8', bg: 0x0a0806, gain: 0.6, cam: [0.4, 0.4, 4.8], tg: [0.1, -0.5, 0],
+    desc: 'The lungs fill with air for the first time. A newborn already knows its mother\'s voice, and its brain forms over a million new connections every second.',
+    facts: ['~385,000 babies born every day', '~1 million new synapses per second', 'Crawling · ~9 months'], build: buildBirth },
+  { ch: 2, title: 'Childhood', short: 'Childhood', sub: 'Play · Wonder · Why?', ctr: age(6), accent: '#ffd35c', bg: 0x05080a, gain: 0.6, cam: [0, 0.3, 5.6], tg: [0, -0.3, 0],
+    desc: 'Running, falling and asking "why?" hundreds of times a day. Every game teaches a child something about physics, language and friendship.',
+    facts: ['Brain ~90% adult size by age 6', 'Hundreds of questions a day', 'Play is how we learn'], build: buildChildhood },
+  { ch: 2, title: 'The Student', short: 'Student', sub: 'Knowledge · Curiosity', ctr: age(18), accent: '#7fd8ff', bg: 0x03050c, gain: 0.7, cam: [0.5, 0.8, 6.4], tg: [0, 0.2, 0],
+    desc: 'Letters become words, numbers become equations and questions become ideas. We inherit 5,000 years of written knowledge and add our own chapter.',
+    facts: ['~12–16 years of schooling', 'Knowledge compounds', 'Every expert was once a beginner'], build: buildStudent },
+  { ch: 2, title: 'Work', short: 'Work', sub: 'Farmer · Builder · Engineer · Creator', ctr: age(27), accent: '#8fb8ff', bg: 0x03050b, gain: 0.7, cam: [0, 0.6, 7.2], tg: [0, 0.3, 0],
+    desc: 'We climb one step at a time: first job, first salary, first promotion. Farmers, builders, doctors and coders all work around 90,000 hours over a lifetime.',
+    facts: ['~90,000 hours worked in a lifetime', 'First salary, first freedom', 'Every step builds the next'], build: buildWork },
+  { ch: 2, title: 'Love & Family', short: 'Family', sub: 'Our people', ctr: age(34), accent: '#ff8fb8', bg: 0x0a0408, gain: 0.6, cam: [3.6, 0.9, 5.4], tg: [0, -0.1, 0],
+    desc: 'We find our people. Love, marriage and children, and the story is passed on to a new generation.',
+    facts: ['Family: our first tribe', 'Love lowers stress & lengthens life', 'Genes live on through children'], build: buildFamily },
+  { ch: 2, title: 'Wanderlust', short: 'Travel', sub: 'Seeing the world', ctr: age(45), accent: '#7fe8ff', bg: 0x020611, gain: 0.8, cam: [0, 0.6, 5.6], tg: [0, 0, 0],
+    desc: 'From Mumbai to Paris, Tokyo, New York and beyond. Journeys that once took our ancestors a lifetime now take a single night\'s flight.',
+    facts: ['~100,000 flights every day', 'Mumbai → New York · ~16 hours', 'Travel changes how we see home'],
+    build: () => buildGlobe({ arcs: FLIGHTS, arcColor: [0.5, 0.9, 1], lift: 0.32, speed: 0.14, highlight: MUMBAI, hlSize: 0.995, spin: t => -1.27 + Math.sin(t * 0.12) * 1.9 }) },
+  { ch: 2, title: 'Faith & Meaning', short: 'Faith', sub: 'Temples · Prayer · Purpose', ctr: age(60), accent: '#ffb347', bg: 0x05040e, gain: 0.7, cam: [0, 0.6, 7.2], tg: [0, 0.3, -0.4],
+    desc: 'Diyas, bells and prayers. In every culture people build temples and ask the biggest questions: why are we here, and what really matters?',
+    facts: ['~85% of people follow a faith', 'Oldest known temple · Göbekli Tepe', 'Gratitude · Community · Peace'], build: buildTemple },
+  { ch: 2, title: 'The Golden Years', short: 'Old Age', sub: 'Wisdom', ctr: age(78), accent: '#ff9a4a', bg: 0x0a0503, gain: 0.6, cam: [0, 0.3, 5.6], tg: [0, -0.2, 0],
+    desc: 'Slower steps and deeper roots. Grandchildren, stories and the wisdom of a whole life. Global life expectancy has more than doubled since 1900.',
+    facts: ['Life expectancy today · ~73 years', 'In 1900 · ~32 years', 'Oldest recorded human · 122 years'], build: buildOldAge },
+  { ch: 2, title: 'Return to Stardust', short: 'Death', sub: 'The circle closes', ctr: age(88), unit: 'years · a life complete', accent: '#a8c4ff', bg: 0x03040b, gain: 0.7, cam: [0, 0.8, 6.2], tg: [0, 0.6, 0],
+    desc: 'The body returns to the Earth and its atoms return to the cosmos. Every atom in you came from a star and will one day become something new. Nothing is truly lost.',
+    facts: ['~7 × 10²⁷ atoms return to nature', 'Memories live on in others', 'From the stars, back to the stars'], build: buildDeath },
+  // ---------- IV · THE AGE OF INTELLIGENCE ----------
+  { ch: 3, title: 'AI Everywhere', short: 'AI Agents', sub: 'Every person, a team of AI helpers', ctr: ce(2030), accent: '#6fd8ff', bg: 0x02050c, gain: 0.7, cam: [0, 0.6, 7.2], tg: [0, 0.2, 0],
+    desc: 'AI agents plan, code, teach, translate and diagnose. Every person works alongside a team of digital helpers, and one person with AI can do what once took a whole company.',
+    facts: ['Forecast · billions of AI agents', 'A personal AI tutor for every child', 'Plain language is the new code'], build: buildAgents },
+  { ch: 3, title: 'Mind Meets Machine', short: 'Neural Link', sub: 'Brain–computer interfaces', ctr: ce(2035), accent: '#d08bff', bg: 0x06030c, gain: 0.7, cam: [0, 0.5, 5.2], tg: [0, 0, 0],
+    desc: 'Threads thinner than a hair let paralysed people type, speak and move again. Then thoughts begin to talk to machines directly, and human intelligence gets an upgrade.',
+    facts: ['First human BCI implants · 2020s', '~86 billion neurons in your brain', 'Restoring sight, speech & movement'], build: buildNeuralLink },
+  { ch: 3, title: 'The Intelligence Explosion', short: 'Explosion', sub: 'AI helps build better AI', ctr: ce(2045), accent: '#ffcf6b', bg: 0x07040c, gain: 0.75, cam: [0, 0.5, 8], tg: [0, 0.3, 0],
+    desc: 'Each generation of AI helps design the next, so intelligence branches and doubles like a tree of light. Discoveries that once took a century can now take a year.',
+    facts: ['AI training compute doubled ~every 6 months (2010s–20s)', 'Science at machine speed', 'Forecast · AGI 2030s–2040s (debated)'], build: buildExplosion },
+  { ch: 3, title: 'Cities of Tomorrow', short: 'Smart City', sub: 'Vertical forests · Flying transit', ctr: ce(2050), accent: '#7fffc4', bg: 0x02070a, gain: 0.7, cam: [0, 1.8, 7.8], tg: [0, 0, -1],
+    desc: 'Towers wrapped in gardens, silent electric air-taxis and streets without traffic jams. AI runs the traffic, power and water, and two out of three people live in cities.',
+    facts: ['68% of humanity urban by 2050 (UN)', 'Autonomous electric transport', 'Vertical farms & sky gardens'], build: buildFutureCity },
+  { ch: 3, title: 'Healing the Planet', short: 'Clean Earth', sub: 'Clean energy · Nature restored', ctr: ce(2060), accent: '#9dff7a', bg: 0x030a08, gain: 0.7, cam: [0, 0.8, 7], tg: [0, 0, -1],
+    desc: 'Energy from sun and wind, AI-designed materials that pull carbon out of the air, and forests growing back. For the first time humanity is repairing the planet instead of consuming it.',
+    facts: ['Target · net-zero ~2050–2070', 'Solar: cheapest electricity ever built', 'Rewilding & reforestation'], build: buildHealing },
+  { ch: 3, title: 'Rewriting Biology', short: 'Longevity', sub: 'Medicine at the molecular scale', ctr: ce(2070), accent: '#ff9fd0', bg: 0x08030a, gain: 0.7, cam: [0, 0.3, 6], tg: [0, 0, 0],
+    desc: 'AI reads the genome like a book. Nanobots repair damaged DNA, cancer becomes curable, and many people stay healthy past 100.',
+    facts: ['AlphaFold · 200M+ protein structures', 'CRISPR gene editing · 2012', 'Forecast · healthy lives beyond 100'], build: buildDNA },
+  { ch: 3, title: 'The Global Mind', short: 'Global Mind', sub: 'Humans + AI, one network', ctr: ce(2100), accent: '#b89bff', bg: 0x04030c, gain: 0.8, cam: [0, 0.6, 5.6], tg: [0, 0, 0],
+    desc: 'Ten billion people and trillions of AI minds are linked in one planet-wide web of thought. Human intelligence is not replaced but amplified, with every language instantly understood and every idea shared.',
+    facts: ['Forecast · ~10 billion humans', 'Every language, instantly understood', 'Human creativity × machine scale'],
+    build: () => buildGlobe({ arcs: GLOBAL_NET, arcColor: [0.75, 0.55, 1], lift: 0.45, speed: 0.2, night: true, spin: t => t * 0.08 }) },
+  // ---------- V · AMONG THE STARS ----------
+  { ch: 4, title: 'Moon Base', short: 'Moon', sub: 'Humanity returns, to stay', ctr: ce(2040), accent: '#d8e4ff', bg: 0x030409, gain: 0.7, cam: [0, 0.7, 6.6], tg: [0, -0.3, -0.8],
+    desc: 'Habitats near the lunar south pole mine ice for water, air and rocket fuel. India\'s Chandrayaan-3 landed in the same region in 2023.',
+    facts: ['Chandrayaan-3 · south pole, 2023', 'Artemis programme', 'Ice → water, oxygen, fuel'], build: buildMoonBase },
+  { ch: 4, title: 'Mars, Second Home', short: 'Mars', sub: 'A multi-planet species', ctr: ce(2080), accent: '#ff7a4a', bg: 0x0c0403, gain: 0.7, cam: [0, 0.8, 7], tg: [0, 0.2, -0.8],
+    desc: 'Cities under glass domes on the red planet. Starships launch every 26 months when Earth and Mars line up, and the first Martian children are born.',
+    facts: ['Launch window every 26 months', 'Trip · ~6–9 months', 'Mars day · 24 h 37 m'], build: buildMars },
+  { ch: 4, title: 'Jupiter\'s Moons', short: 'Jupiter', sub: 'Oceans beyond the Sun', ctr: ce(2150), accent: '#ffcf9a', bg: 0x05040a, gain: 0.75, cam: [0, 1.8, 7.8], tg: [0, 0, 0],
+    desc: 'Robotic submarines melt through Europa\'s ice into an ocean holding more water than all of Earth\'s. The search for alien life reaches its biggest question.',
+    facts: ['Europa: ocean under ~20 km of ice', 'Ganymede: largest moon in the Solar System', '90+ known moons of Jupiter'], build: buildJupiter },
+  { ch: 4, title: 'Harnessing the Sun', short: 'Dyson Swarm', sub: 'A star-powered civilisation', ctr: ce(2200), accent: '#ffc24a', bg: 0x070402, gain: 0.75, cam: [0, 2.6, 7.5], tg: [0.5, 0, 0],
+    desc: 'Billions of solar collectors circle the Sun, catching a share of its energy to power AI, cities and starships. Civilisation climbs to Type II on the Kardashev scale.',
+    facts: ['Sun output · 3.8 × 10²⁶ watts', 'Kardashev Type II civilisation', 'Energy for trillions of minds'], build: buildDyson },
+  { ch: 4, title: 'Orbital Cities', short: 'Orbit', sub: 'Life among the stars', ctr: ce(2220), accent: '#8fe0ff', bg: 0x02040a, gain: 0.7, cam: [0, 1.0, 7.8], tg: [0, -0.2, 0],
+    desc: 'Spinning habitats create their own gravity in orbit, with forests, rivers and millions of residents. Earth becomes a garden while heavy industry moves into space.',
+    facts: ['Spin gravity · ~1 g', 'O\'Neill cylinder concept · 1976', 'Solar power beamed from space'], build: buildHabitat },
+  { ch: 4, title: 'To the Stars', short: 'Interstellar', sub: '300 years from now', ctr: ce(2326), accent: '#c9b8ff', bg: 0x03020a, gain: 0.8, cam: [2.4, 1.3, 4.8], tg: [0, 0, -1.2],
+    desc: 'Light-sail ships leave for Alpha Centauri, 4.37 light-years away. The stardust that became us returns to the stars. The story continues, and you are part of it.',
+    facts: ['Alpha Centauri · 4.37 light-years', 'Light sails · up to 20% light speed', 'Next chapter: yours'], build: buildInterstellar },
+];
+const cache = [];
+const getShape = i => cache[i] || (cache[i] = ERAS[i].build());
+
+/* ================= RENDERER ================= */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(ERAS[0].bg);
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 300);
+camera.position.set(...ERAS[0].cam);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.06; controls.enableZoom = false; controls.enablePan = false; controls.rotateSpeed = 0.45;
+controls.minPolarAngle = 0.25; controls.maxPolarAngle = Math.PI * 0.64;
+
+const cur = new Float32Array(N * 3), vel = new Float32Array(N * 3), tgt = new Float32Array(N * 3), ccur = new Float32Array(N * 3), ctgt = new Float32Array(N * 3);
+const seeds = new Float32Array(N), stiff = new Float32Array(N);
+for (let i = 0; i < N; i++) { const v = unitVec(), r = rnd(6, 14); set3(cur, i, v[0] * r, v[1] * r, v[2] * r); seeds[i] = Math.random(); stiff[i] = rnd(0.012, 0.045); }
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.BufferAttribute(cur, 3).setUsage(THREE.DynamicDrawUsage));
+geo.setAttribute('aColor', new THREE.BufferAttribute(ccur, 3).setUsage(THREE.DynamicDrawUsage));
+geo.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
+const mat = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 }, uSize: { value: isMobile ? 30 : 24 }, uPR: { value: renderer.getPixelRatio() }, uGain: { value: 0.4 } },
+  vertexShader: `
+    uniform float uTime, uSize, uPR, uGain;
+    attribute vec3 aColor; attribute float aSeed;
+    varying vec3 vColor;
+    void main(){
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      gl_Position = projectionMatrix * mv;
+      float tw = 0.7 + 0.3 * sin(uTime * (1.5 + aSeed * 2.0) + aSeed * 60.0);
+      gl_PointSize = uSize * uPR * (0.55 + aSeed * 0.9) / max(-mv.z, 0.1);
+      vColor = pow(max(aColor, vec3(0.0)), vec3(2.2)) * tw * 1.5 * uGain;
+    }`,
+  fragmentShader: `
+    varying vec3 vColor;
+    void main(){
+      float d = length(gl_PointCoord - 0.5);
+      if (d > 0.5) discard;
+      float a = pow(1.0 - d * 2.0, 1.6);
+      gl_FragColor = vec4(vColor * a, a);
+    }`,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+});
+const points = new THREE.Points(geo, mat); points.frustumCulled = false; scene.add(points);
+
+const starGeo = new THREE.BufferGeometry(), starPos = new Float32Array(3000 * 3);
+for (let i = 0; i < 3000; i++) { const v = unitVec(), r = rnd(40, 90); set3(starPos, i, v[0] * r, v[1] * r, v[2] * r); }
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ size: 0.18, color: 0x9fb3ff, transparent: true, opacity: 0.55, depthWrite: false }));
+scene.add(stars);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.9, 0.55, 0.1);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+/* ================= STATE / NAV ================= */
+let eraIdx = 0, active = getShape(0), started = false;
+tgt.set(active.pos); ctgt.set(active.col);
+const bgTarget = new THREE.Color(ERAS[0].bg);
+let gainTarget = 0.4; // dimmed behind the intro screen, restored on "Begin"
+const camFrom = new THREE.Vector3(), camTo = new THREE.Vector3(), tgFrom = new THREE.Vector3(), tgTo = new THREE.Vector3(); let camT = 1;
+let cMode = 'ya', cFrom = 0, cTo = 0, cT = 1, cShown = ERAS[0].ctr.v;
+
+function kick(str) { for (let i = 0; i < N; i++) { const v = unitVec(), m = Math.random() * str; vel[i * 3] += v[0] * m; vel[i * 3 + 1] += v[1] * m; vel[i * 3 + 2] += v[2] * m; } }
+function fitScale() { const a = camera.aspect; return a < 1 ? 1 + (1 - a) * 1.7 : 1; }
+function go(i, force) {
+  i = Math.max(0, Math.min(ERAS.length - 1, i));
+  if (i === eraIdx && !force) return;
+  eraIdx = i; const e = ERAS[i];
+  active = getShape(i); tgt.set(active.pos); ctgt.set(active.col);
+  kick(0.16);
+  camFrom.copy(camera.position); tgFrom.copy(controls.target);
+  tgTo.set(...e.tg); camTo.set(...e.cam).sub(tgTo).multiplyScalar(fitScale()).add(tgTo); camT = 0;
+  setCounter(e);
+  bgTarget.set(e.bg); gainTarget = e.gain;
+  renderUI(i); audioEra(i);
+  setTimeout(() => { if (i + 1 < ERAS.length) getShape(i + 1); }, 1400); // pre-build the next scene
+}
+
+/* ================= UI ================= */
+const $ = id => document.getElementById(id);
+const panel = $('panel'), dotsEl = $('dots');
+ERAS.forEach((e, i) => { const b = document.createElement('button'); b.className = 'dot'; b.innerHTML = `<span>${e.short}</span>`; b.onclick = () => { stopTour(); go(i); }; dotsEl.appendChild(b); });
+const chapEls = CHAPTERS.map((name, c) => { const first = ERAS.findIndex(e => e.ch === c), el = document.createElement('div'); el.className = 'chap' + (c === CHAPTERS.length - 1 ? ' last' : ''); el.innerHTML = `${ROMAN[c]}<span> · ${name}</span>`; el.style.left = `calc(${first / (ERAS.length - 1) * 100}% - ${first / (ERAS.length - 1) * 9}px)`; el.onclick = () => go(first); $('timeline').appendChild(el); return el; });
+const segEls = CHAPTERS.map((_, c) => { const el = document.createElement('div'), n = ERAS.filter(e => e.ch === c).length; el.className = 'seg'; el.style.flex = n; el.innerHTML = '<i></i>'; el.onclick = () => { stopTour(); go(ERAS.findIndex(e => e.ch === c)); }; $('mbar').appendChild(el); return el; });
+function renderUI(i) {
+  const e = ERAS[i], inCh = ERAS.filter(x => x.ch === e.ch), k = inCh.indexOf(e);
+  document.documentElement.style.setProperty('--accent', e.accent);
+  panel.classList.remove('show'); void panel.offsetWidth;
+  $('idx').textContent = `${ROMAN[e.ch]} · ${CHAPTERS[e.ch]} — ${String(k + 1).padStart(2, '0')}/${String(inCh.length).padStart(2, '0')}`;
+  $('title').textContent = e.title; $('sub').textContent = e.sub; $('desc').textContent = e.desc;
+  $('facts').innerHTML = e.facts.map(f => `<li>${f}</li>`).join('');
+  panel.classList.add('show');
+  [...dotsEl.children].forEach((d, k2) => { d.classList.toggle('active', k2 === i); d.classList.toggle('done', k2 < i); });
+  chapEls.forEach((el, c) => el.classList.toggle('on', c === e.ch));
+  segEls.forEach((el, c) => { el.classList.toggle('on', c === e.ch); el.firstChild.style.width = (c < e.ch ? 100 : c > e.ch ? 0 : Math.max(6, (k + 1) / inCh.length * 100)) + '%'; });
+  $('mch').textContent = `${ROMAN[e.ch]} · ${CHAPTERS[e.ch]}`; $('mnum').textContent = `${String(i + 1).padStart(2, '0')} / ${ERAS.length}`;
+  $('fill').style.width = (i / (ERAS.length - 1) * 100) + '%';
+}
+function fmtYear(v) {
+  if (v >= 10000) return [Math.round(v).toLocaleString('en-US'), 'years ago'];
+  const y = Math.round(2026 - v);
+  if (y >= 2026) return ['2026', 'CE · Now'];
+  return y <= 0 ? [String(-y), 'BCE'] : [String(y), 'CE'];
+}
+function fmtC(m, v) { if (m === 'ya') return fmtYear(v); if (m === 'ce') return [String(Math.round(v)), 'CE']; return ['Age ' + Math.round(v), ERAS[eraIdx].unit || 'years old']; }
+function showC(n, u) { $('yearNum').textContent = n; $('yearUnit').textContent = u; }
+function setCounter(e) {
+  const c = e.ctr;
+  if (c.m === 'txt') { cMode = 'txt'; cT = 1; showC(c.n, c.u); return; }
+  if (c.m === cMode) { cFrom = cShown; cTo = c.v; cT = 0; }
+  else { cMode = c.m; cShown = cTo = c.v; cT = 1; showC(...fmtC(c.m, c.v)); }
+}
+
+let tourTimer = null;
+function stopTour() { clearInterval(tourTimer); tourTimer = null; $('tour').classList.remove('on'); $('tour').textContent = '▶'; }
+function toggleTour() {
+  if (tourTimer) return stopTour();
+  $('tour').classList.add('on'); $('tour').textContent = '❚❚';
+  go(eraIdx === ERAS.length - 1 ? 0 : eraIdx + 1);
+  tourTimer = setInterval(() => { if (eraIdx >= ERAS.length - 1) return stopTour(); go(eraIdx + 1); }, 7500);
+}
+$('prev').onclick = () => { stopTour(); go(eraIdx - 1); };
+$('next').onclick = () => { stopTour(); go(eraIdx + 1); };
+$('tour').onclick = toggleTour;
+$('snd').onclick = toggleMute;
+$('begin').onclick = () => {
+  initAudio();
+  $('intro').classList.add('hide');
+  document.body.classList.add('started'); started = true; gainTarget = ERAS[0].gain;
+  renderUI(0); showC(...fmtYear(ERAS[0].ctr.v)); kick(0.12); whoosh(0.8);
+  setTimeout(() => getShape(1), 800);
+};
+
+let wheelAcc = 0, lastNav = 0, wheelTimer;
+addEventListener('wheel', e => {
+  if (!started) return;
+  wheelAcc += e.deltaY; const now = performance.now();
+  if (now - lastNav > 1100 && Math.abs(wheelAcc) > 40) { stopTour(); go(eraIdx + (wheelAcc > 0 ? 1 : -1)); wheelAcc = 0; lastNav = now; }
+  clearTimeout(wheelTimer); wheelTimer = setTimeout(() => wheelAcc = 0, 200);
+}, { passive: true });
+addEventListener('keydown', e => {
+  if (!started) return;
+  if (['ArrowRight', 'ArrowDown', 'PageDown'].includes(e.key)) { stopTour(); go(eraIdx + 1); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { stopTour(); go(eraIdx - 1); }
+  else if (e.key === ' ') { e.preventDefault(); toggleTour(); }
+  else if (e.key === 'h' || e.key === 'H') document.body.classList.toggle('hideui');
+  else if (e.key === 'm' || e.key === 'M') toggleMute();
+  else if (/^[1-5]$/.test(e.key)) { stopTour(); go(ERAS.findIndex(x => x.ch === +e.key - 1)); }
+});
+let tsx = 0, tsy = 0;
+addEventListener('touchstart', e => { tsx = e.touches[0].clientX; tsy = e.touches[0].clientY; }, { passive: true });
+addEventListener('touchend', e => {
+  if (!started) return;
+  const dx = e.changedTouches[0].clientX - tsx, dy = e.changedTouches[0].clientY - tsy;
+  if (Math.abs(dy) > 70 && Math.abs(dy) > Math.abs(dx) * 1.5) { stopTour(); go(eraIdx + (dy < 0 ? 1 : -1)); }
+}, { passive: true });
+
+const pointer = { ndc: new THREE.Vector2(), active: false, dx: 0, dy: 0, dt: 0 };
+let burstPending = false;
+canvas.addEventListener('pointermove', e => { pointer.ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); if (e.pointerType === 'mouse' || e.buttons) pointer.active = true; });
+canvas.addEventListener('pointerleave', () => pointer.active = false);
+canvas.addEventListener('pointerdown', e => { pointer.dx = e.clientX; pointer.dy = e.clientY; pointer.dt = performance.now(); pointer.ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
+canvas.addEventListener('pointerup', e => {
+  if (Math.hypot(e.clientX - pointer.dx, e.clientY - pointer.dy) < 6 && performance.now() - pointer.dt < 300) { burstPending = true; if (actx) whoosh(0.5); }
+  if (e.pointerType !== 'mouse') pointer.active = false;
+});
+
+/* ================= AUDIO ================= */
+let actx = null, master, oscs = [], noiseBuf, muted = false;
+const PENT = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3];
+const noteFor = i => 55 * PENT[i % 5] * Math.pow(2, Math.floor(i / 5) % 3);
+function initAudio() {
+  if (actx) return;
+  try {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    master = actx.createGain(); master.gain.value = 0; master.connect(actx.destination);
+    master.gain.linearRampToValueAtTime(0.5, actx.currentTime + 3);
+    const filt = actx.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = 900; filt.Q.value = 0.7; filt.connect(master);
+    [[1, 'triangle', 0.05], [1.5, 'triangle', 0.03], [2.003, 'sine', 0.025], [0.5, 'sine', 0.07]].forEach(([m, type, g]) => {
+      const o = actx.createOscillator(); o.type = type; o.frequency.value = noteFor(0) * 2 * m;
+      const gn = actx.createGain(); gn.gain.value = g; o.connect(gn).connect(filt); o.start(); oscs.push([o, m]);
+    });
+    const lfo = actx.createOscillator(); lfo.frequency.value = 0.07; const lg = actx.createGain(); lg.gain.value = 450; lfo.connect(lg).connect(filt.frequency); lfo.start();
+    noiseBuf = actx.createBuffer(1, actx.sampleRate * 1.6, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  } catch (e) { actx = null; }
+}
+function whoosh(str = 1) {
+  if (!actx) return; const now = actx.currentTime;
+  const src = actx.createBufferSource(); src.buffer = noiseBuf;
+  const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
+  bp.frequency.setValueAtTime(200, now); bp.frequency.exponentialRampToValueAtTime(2400, now + 0.7); bp.frequency.exponentialRampToValueAtTime(300, now + 1.5);
+  const g = actx.createGain(); g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.22 * str, now + 0.35); g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+  src.connect(bp).connect(g).connect(master); src.start(); src.stop(now + 1.6);
+}
+function audioEra(i) { if (!actx) return; const f = noteFor(i) * 2; oscs.forEach(([o, m]) => o.frequency.setTargetAtTime(f * m, actx.currentTime, 0.8)); whoosh(); }
+function toggleMute() { initAudio(); if (!actx) return; muted = !muted; master.gain.setTargetAtTime(muted ? 0 : 0.5, actx.currentTime, 0.3); $('snd').classList.toggle('on', !muted); $('snd').style.opacity = muted ? 0.4 : 1; }
+
+/* ================= LOOP ================= */
+const clock = new THREE.Clock(); let time = 0;
+const raycaster = new THREE.Raycaster();
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+function frame() {
+  requestAnimationFrame(frame);
+  const dt = Math.min(clock.getDelta(), 0.05); time += dt;
+  if (active.dyn) active.dyn(time, tgt, ctgt);
+
+  let useRay = false, ox = 0, oy = 0, oz = 0, rx = 0, ry = 0, rz = 0;
+  if (pointer.active || burstPending) { raycaster.setFromCamera(pointer.ndc, camera); const r = raycaster.ray; ox = r.origin.x; oy = r.origin.y; oz = r.origin.z; rx = r.direction.x; ry = r.direction.y; rz = r.direction.z; useRay = true; }
+  const burst = burstPending; burstPending = false;
+  const RM = 0.6, RB = 1.8;
+  for (let i = 0; i < N; i++) {
+    const i3 = i * 3, k = stiff[i];
+    let vx = vel[i3] + (tgt[i3] - cur[i3]) * k, vy = vel[i3 + 1] + (tgt[i3 + 1] - cur[i3 + 1]) * k, vz = vel[i3 + 2] + (tgt[i3 + 2] - cur[i3 + 2]) * k;
+    if (useRay) {
+      const px = cur[i3] - ox, py = cur[i3 + 1] - oy, pz = cur[i3 + 2] - oz, pr = px * rx + py * ry + pz * rz;
+      const qx = px - rx * pr, qy = py - ry * pr, qz = pz - rz * pr, d2 = qx * qx + qy * qy + qz * qz;
+      if (pointer.active && d2 < RM * RM) { const d = Math.sqrt(d2) + 1e-4, f = (1 - d / RM) * 0.045 / d; vx += qx * f; vy += qy * f; vz += qz * f; }
+      if (burst && d2 < RB * RB) { const d = Math.sqrt(d2) + 1e-4, f = (1 - d / RB) * 0.4 / d; vx += qx * f + (Math.random() - 0.5) * 0.1; vy += qy * f + (Math.random() - 0.5) * 0.1; vz += qz * f + (Math.random() - 0.5) * 0.1; }
+    }
+    vx *= 0.87; vy *= 0.87; vz *= 0.87;
+    vel[i3] = vx; vel[i3 + 1] = vy; vel[i3 + 2] = vz;
+    cur[i3] += vx; cur[i3 + 1] += vy; cur[i3 + 2] += vz;
+    ccur[i3] += (ctgt[i3] - ccur[i3]) * 0.045; ccur[i3 + 1] += (ctgt[i3 + 1] - ccur[i3 + 1]) * 0.045; ccur[i3 + 2] += (ctgt[i3 + 2] - ccur[i3 + 2]) * 0.045;
+  }
+  geo.attributes.position.needsUpdate = true; geo.attributes.aColor.needsUpdate = true;
+
+  if (camT < 1) { camT = Math.min(1, camT + dt / 2.4); const e = ease(camT); camera.position.lerpVectors(camFrom, camTo, e); controls.target.lerpVectors(tgFrom, tgTo, e); }
+  if (cT < 1) {
+    cT = Math.min(1, cT + dt / 2.0); const e = 1 - Math.pow(1 - cT, 3);
+    cShown = cMode === 'ya' ? Math.exp(Math.log(cFrom + 1) + (Math.log(cTo + 1) - Math.log(cFrom + 1)) * e) - 1 : cFrom + (cTo - cFrom) * e;
+    showC(...fmtC(cMode, cT >= 1 ? cTo : cShown));
+  }
+  scene.background.lerp(bgTarget, 0.03);
+  mat.uniforms.uGain.value += (gainTarget - mat.uniforms.uGain.value) * 0.05;
+  mat.uniforms.uTime.value = time;
+  stars.rotation.y += dt * 0.004;
+  controls.update();
+  composer.render();
+}
+frame();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); bloom.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
