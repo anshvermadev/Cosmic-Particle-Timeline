@@ -7,6 +7,10 @@
 
 > *"Every atom in your body was forged in a star. We are the cosmos experiencing itself, waking up to build intelligence and set sail for the stars."*
 
+<p align="center">
+  <img src="og-image.jpg" alt="ORIGIN — 13.8 Billion Years in 26,000 Living Particles" width="100%" style="border-radius: 8px;">
+</p>
+
 ---
 
 ## 🌌 Overview
@@ -113,6 +117,7 @@ ORIGIN was engineered with an ultra-lean, zero-bloat philosophy:
 origin/
 ├── index.html                   # Complete application (HTML, CSS, Three.js, Shaders, Audio)
 ├── favicon.svg                  # Vector cosmic particle brand icon & favicon
+├── og-image.jpg                 # Optimized 1200x630 social preview image (WhatsApp/X/LinkedIn)
 ├── .gitignore                   # Git configuration (clean ignore rules)
 └── README.md                    # Project documentation
 ```
